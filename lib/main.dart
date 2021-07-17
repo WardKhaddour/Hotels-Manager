@@ -5,7 +5,7 @@ void main() {
 }
 
 class HotelsManager extends StatelessWidget {
-  const HotelsManager({Key? key}) : super(key: key);
+  const HotelsManager({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
