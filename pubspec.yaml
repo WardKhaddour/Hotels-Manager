@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.3
   firebase_auth: ^3.0.1
+  firebase_core: ^1.4.0
+  shared_preferences: ^2.0.6
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +22,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+  fonts:
+    - family: Uchen
+      fonts:
+        - asset: assets/fonts/Uchen-Regular.ttf  

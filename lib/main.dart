@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
+import './constants.dart';
 import './screens/login_screen.dart';
+import './screens/welcome_screen.dart';
 
 void main() {
   runApp(HotelsManager());
@@ -12,13 +15,25 @@ class HotelsManager extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.purple,
         primaryColor: Colors.purple,
         accentColor: Colors.pink,
+        fontFamily: uchen_family,
+        focusColor: Colors.purple,
       ),
-      initialRoute: LogInScreen.routeName,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primarySwatch: Colors.purple,
+        primaryColor: Colors.purple,
+        accentColor: Colors.pink,
+        fontFamily: uchen_family,
+      ),
+      themeMode: ThemeMode.dark,
+      initialRoute: WelcomeScreen.routeName,
       routes: {
+        WelcomeScreen.routeName: (ctx) => WelcomeScreen(),
         LogInScreen.routeName: (ctx) => LogInScreen(),
       },
     );
