@@ -17,7 +17,7 @@ class _LogInScreenState extends State<LogInScreen> {
   final FocusNode _passwordFocusNode = FocusNode();
   bool _hidePassword = true;
   void validate() {
-    FormState formState = _formKey.currentState ?? FormState();
+    FormState? formState = _formKey.currentState ?? FormState();
     if (formState.validate()) {
       print("hello");
     } else {
@@ -52,10 +52,11 @@ class _LogInScreenState extends State<LogInScreen> {
                   focusNode: _emailFocusNode,
                   autofocus: true,
                   controller: _emailController,
-                  validator: (String? email) {
+                  validator: (email) {
                     if (email!.contains('@') &&
-                        (email.contains('.com') || email.contains('.net')))
+                        (email.contains('.com') || email.contains('.net'))) {
                       return '';
+                    }
                     return 'Input valid email';
                   },
                   onFieldSubmitted: (_) {
@@ -118,10 +119,9 @@ class _LogInScreenState extends State<LogInScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextButton(
-                  onPressed: () {
-                    validate();
-                    //TODO login
-                  },
+                  onPressed: validate,
+                  //TODO login
+
                   child: Text(
                     'Log In',
                     style: TextStyle(fontSize: 16),
