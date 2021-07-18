@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 import '../constants.dart';
-import '../services/auth.dart';
+import '../controllers/auth_controller.dart';
+import '../screens/hotels_screen.dart';
 import './logo.dart';
 
 class LoginForm extends StatefulWidget {
@@ -12,6 +14,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final _authController = Get.find<AuthController>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -31,8 +34,12 @@ class _LoginFormState extends State<LoginForm> {
       await pref.setString('email', _emailController.text);
       await pref.setString('password', _passwordController.text);
     }
-    AuthService? authService = AuthService();
-    await authService.signIn(_emailController.text, _passwordController.text);
+
+    await _authController
+        .login(_emailController.text, _passwordController.text)
+        .then((_) {
+      Get.offNamed(HotelsScreen.routeName);
+    });
   }
 
   @override
@@ -61,7 +68,7 @@ class _LoginFormState extends State<LoginForm> {
               validator: (email) {
                 if (email!.contains('@') &&
                     (email.contains('.com') || email.contains('.net'))) {
-                  return '';
+                  return null;
                 }
                 return 'Input valid email';
               },

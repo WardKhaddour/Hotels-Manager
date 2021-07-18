@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import './constants.dart';
+import './controllers/auth_controller.dart';
+import './controllers/hotels_controller.dart';
+import './screens/hotels_screen.dart';
 import './screens/login_screen.dart';
 import './screens/welcome_screen.dart';
 
 void main() {
+  Get.lazyPut(() => AuthController());
+  Get.lazyPut(() => HotelsController());
   runApp(HotelsManager());
 }
 
@@ -13,7 +19,7 @@ class HotelsManager extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       darkTheme: ThemeData(
         brightness: Brightness.dark,
@@ -35,6 +41,7 @@ class HotelsManager extends StatelessWidget {
       routes: {
         WelcomeScreen.routeName: (ctx) => WelcomeScreen(),
         LogInScreen.routeName: (ctx) => LogInScreen(),
+        HotelsScreen.routeName: (ctx) => HotelsScreen(),
       },
     );
   }
