@@ -3,10 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
 import '../services/auth.dart';
 import './logo.dart';
+import 'custom_button.dart';
+
+enum SignMode {
+  LogIn,
+  SignUp,
+}
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({Key? key}) : super(key: key);
-
   @override
   _LoginFormState createState() => _LoginFormState();
 }
@@ -17,15 +21,29 @@ class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
+  SignMode _signMode = SignMode.LogIn;
   bool _hidePassword = true;
   bool _saveUser = true;
-  Future<void> validateAndLogin() async {
+  void changeMode() {
+    setState(() {
+      _signMode = SignMode.SignUp;
+    });
+  }
+
+  Future<void> validateAndSignUp() async {
+    print('create account');
     FormState? formState = _formKey.currentState ?? FormState();
-    if (formState.validate()) {
-      print("hello");
-    } else {
-      print('');
-    }
+    formState.validate();
+    AuthService? authService = AuthService();
+
+    await authService.signUp(_emailController.text, _passwordController.text);
+  }
+
+  Future<void> validateAndLogin() async {
+    print('login');
+    FormState? formState = _formKey.currentState ?? FormState();
+    formState.validate();
+
     if (_saveUser) {
       final pref = await SharedPreferences.getInstance();
       await pref.setString('email', _emailController.text);
@@ -52,6 +70,7 @@ class _LoginFormState extends State<LoginForm> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Logo(),
+          SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: TextFormField(
@@ -105,43 +124,41 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
           SizedBox(height: 8),
-          ListTile(
-            title: Text('Remember this user'),
-            trailing: Checkbox(
-              onChanged: (value) {
-                setState(() {
-                  _saveUser = value ?? true;
-                });
-              },
-              value: _saveUser,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: validateAndLogin,
-              child: Text(
-                'Log In',
-                style: TextStyle(fontSize: 16),
+          if (_signMode == SignMode.LogIn)
+            ListTile(
+              title: Text('Remember this user'),
+              trailing: Checkbox(
+                fillColor: MaterialStateProperty.all(Colors.purple),
+                onChanged: (value) {
+                  setState(() {
+                    _saveUser = value ?? true;
+                  });
+                },
+                value: _saveUser,
               ),
             ),
+          CustomButton(
+            onPress: _signMode == SignMode.LogIn
+                ? validateAndLogin
+                : validateAndSignUp,
+            title: _signMode == SignMode.LogIn ? 'Log In' : 'Create Account',
           ),
-          Flexible(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextButton(
-                    onPressed: () {
-                      //TODO create new user
-                    },
-                    child: Text('Create Account'),
+          if (_signMode == SignMode.LogIn)
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Don\'t Have Account Yet?'),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  CustomButton(
+                    onPress: changeMode,
+                    title: 'Create Now',
+                  ),
+                ],
+              ),
+            )
         ],
       ),
     );

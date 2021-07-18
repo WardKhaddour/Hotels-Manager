@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:get/get.dart';
 import '../screens/login_screen.dart';
 import '../services/auth.dart';
 import '../services/check_internet.dart';
@@ -16,6 +16,7 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool _isConnected = false;
+
   Future<void> tryAutoLogin() async {
     final pref = await SharedPreferences.getInstance();
     final email = pref.getString('email') ?? '';
@@ -28,13 +29,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0)).then((_) async {
-      // _isConnected = await CheckInternet.checkInternet();
-      if (!_isConnected) {
-        // tryAutoLogin();
-        Navigator.of(context).pushReplacementNamed(LogInScreen.routeName);
+    Future.delayed(Duration(seconds: 1)).then((_) async {
+      _isConnected = await CheckInternet.checkInternet();
+      print('is connected $_isConnected');
+      if (_isConnected) {
+        // await tryAutoLogin();
+        Get.offNamed(LogInScreen.routeName);
       } else {
-        print('No internet ');
+        showDialog(context: context, builder: (context) => AlertDialog());
       }
     });
   }
