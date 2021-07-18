@@ -2,11 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../widgets/login_form.dart';
 
-enum Mode {
-  LogIn,
-  SignUp,
-}
-
 class LogInScreen extends StatelessWidget {
   static const String routeName = '/login-screen';
 

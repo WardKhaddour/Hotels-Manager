@@ -12,7 +12,12 @@ class AuthService {
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
+      } else {
+        print('error!');
       }
+      return null;
+    } on Exception catch (e) {
+      print(e);
       return null;
     }
   }
@@ -26,6 +31,8 @@ class AuthService {
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
+      } else {
+        print('error!');
       }
       return null;
     } on Exception catch (e) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
+import '../screens/login_screen.dart';
 import '../widgets/hotel_card.dart';
 
 class HotelsScreen extends StatefulWidget {
@@ -12,6 +14,7 @@ class HotelsScreen extends StatefulWidget {
 
 class _HotelsScreenState extends State<HotelsScreen> {
   final hotelsController = Get.find<HotelsController>();
+  final authController = Get.find<AuthController>();
   bool searchMode = false;
   String searchText = '';
 
@@ -40,6 +43,12 @@ class _HotelsScreenState extends State<HotelsScreen> {
               });
             },
           ),
+          IconButton(
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                authController.logout();
+                Get.offNamed(LogInScreen.routeName);
+              })
         ],
       ),
       body: Container(
