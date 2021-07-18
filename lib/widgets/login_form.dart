@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants.dart';
+import '../screens/hotel_details_screen.dart';
 import '../services/auth.dart';
 import './logo.dart';
 import 'custom_button.dart';
@@ -31,7 +33,6 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> validateAndSignUp() async {
-    print('create account');
     FormState? formState = _formKey.currentState ?? FormState();
     formState.validate();
     AuthService? authService = AuthService();
@@ -40,7 +41,6 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> validateAndLogin() async {
-    print('login');
     FormState? formState = _formKey.currentState ?? FormState();
     formState.validate();
 
@@ -51,6 +51,7 @@ class _LoginFormState extends State<LoginForm> {
     }
     AuthService? authService = AuthService();
     await authService.signIn(_emailController.text, _passwordController.text);
+    Get.offNamed(HotelDetailsScreen.routeName);
   }
 
   @override
@@ -80,7 +81,7 @@ class _LoginFormState extends State<LoginForm> {
               validator: (email) {
                 if (email!.contains('@') &&
                     (email.contains('.com') || email.contains('.net'))) {
-                  return '';
+                  return null;
                 }
                 return 'Input valid email';
               },
@@ -103,7 +104,8 @@ class _LoginFormState extends State<LoginForm> {
                 await validateAndLogin();
               },
               validator: (_) {
-                if (_passwordController.text.isEmpty) {
+                if (_passwordController.text.isEmpty &&
+                    _passwordController.text.length < 6) {
                   return 'Input valid password';
                 }
               },

@@ -7,7 +7,7 @@ import '../services/check_internet.dart';
 import '../widgets/logo.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  static const String routeName = '/';
+  static const String routeName = '/welcome-screen';
   const WelcomeScreen({Key? key}) : super(key: key);
 
   @override

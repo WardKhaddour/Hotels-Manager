@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import './constants.dart';
+import './screens/hotel_details_screen.dart';
 import './screens/login_screen.dart';
 import './screens/welcome_screen.dart';
 
@@ -32,10 +32,11 @@ class HotelsManager extends StatelessWidget {
         fontFamily: uchen_family,
       ),
       themeMode: ThemeMode.dark,
-      initialRoute: WelcomeScreen.routeName,
+      initialRoute: HotelDetailsScreen.routeName,
       routes: {
         WelcomeScreen.routeName: (ctx) => WelcomeScreen(),
         LogInScreen.routeName: (ctx) => LogInScreen(),
+        HotelDetailsScreen.routeName: (ctx) => HotelDetailsScreen(),
       },
     );
   }
