@@ -1,10 +1,10 @@
-import './location.dart';
+// import './location.dart';
 
 class Hotel {
   final String name;
   final String id;
   final int roomsCount;
-  final Location location;
+  final String location;
   final String imageUrl;
   final double rate;
   final int phoneNumber;
@@ -16,5 +16,5 @@ class Hotel {
       required this.id,
       required this.imageUrl,
       required this.rate,
-      required this.phoneNumber});
+      required this.phoneNumber,});
 }

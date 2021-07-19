@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 const String tasqmentLog = 'assets/images/tasqment-logo.png';
 const String uchen_family = 'assets/fonts/Uchen-Regular.ttf';
-const kEmailTextFieldDecoration = InputDecoration(
-  hintText: 'Email',
+const kTextFieldDecoration = InputDecoration(
+  hintText: '',
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(8)),
     borderSide: BorderSide(

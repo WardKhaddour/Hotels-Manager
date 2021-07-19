@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:get/get.dart';
 import '../constants.dart';
 import '../controllers/auth_controller.dart';
 import '../screens/hotels_screen.dart';
@@ -19,7 +18,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _authController = Get.find<AuthController>();
+  final _authController = AuthController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -106,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
               },
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.go,
-              decoration: kEmailTextFieldDecoration,
+              decoration: kTextFieldDecoration.copyWith(hintText: 'Email'),
             ),
           ),
           SizedBox(height: 8),
@@ -125,7 +124,7 @@ class _LoginFormState extends State<LoginForm> {
                   return 'Input valid password';
                 }
               },
-              decoration: kEmailTextFieldDecoration.copyWith(
+              decoration: kTextFieldDecoration.copyWith(
                 hintText: 'Password',
                 suffixIcon: IconButton(
                   icon: Icon(

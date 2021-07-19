@@ -13,20 +13,21 @@ class HotelsScreen extends StatefulWidget {
 }
 
 class _HotelsScreenState extends State<HotelsScreen> {
-  final hotelsController = Get.find<HotelsController>();
-  final authController = Get.find<AuthController>();
+  final hotelsController = HotelsController();
+  final authController = AuthController();
   bool searchMode = false;
   String searchText = '';
 
   @override
   Widget build(BuildContext context) {
-    final hotels = hotelsController.hotels.value;
+    final hotels = hotelsController.hotels;
     final searchHotels = hotelsController.search(searchText);
 
     return Scaffold(
       appBar: AppBar(
         title: searchMode
             ? TextField(
+                autofocus: true,
                 onChanged: (val) {
                   setState(() {
                     searchText = val;

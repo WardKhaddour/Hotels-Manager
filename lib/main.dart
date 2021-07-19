@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import './constants.dart';
 import './screens/hotel_details_screen.dart';
 import './screens/login_screen.dart';
 import './screens/welcome_screen.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/hotels_controller.dart';
+import 'screens/hotels_screen.dart';
 
 void main() {
-  Get.lazyPut(() => AuthController);
-  Get.lazyPut(() => HotelsController);
+  Get.put(() => AuthController);
+  Get.put(() => HotelsController);
   runApp(HotelsManager());
 }
 
@@ -36,10 +38,11 @@ class HotelsManager extends StatelessWidget {
         fontFamily: uchen_family,
       ),
       themeMode: ThemeMode.dark,
-      initialRoute: HotelDetailsScreen.routeName,
+      initialRoute: WelcomeScreen.routeName,
       routes: {
         WelcomeScreen.routeName: (ctx) => WelcomeScreen(),
         LogInScreen.routeName: (ctx) => LogInScreen(),
+        HotelsScreen.routeName: (ctx) => HotelsScreen(),
         HotelDetailsScreen.routeName: (ctx) => HotelDetailsScreen(),
       },
     );
