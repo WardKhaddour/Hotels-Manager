@@ -12,12 +12,17 @@ class AuthService {
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
+      } else {
+        print('error!');
       }
+      return null;
+    } on Exception catch (e) {
+      print(e);
       return null;
     }
   }
 
-  Future signUp(String email, String password) async {
+  Future<UserCredential?> signUp(String email, String password) async {
     try {
       return await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -26,6 +31,8 @@ class AuthService {
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
+      } else {
+        print('error!');
       }
       return null;
     } on Exception catch (e) {
@@ -36,5 +43,9 @@ class AuthService {
 
   Future<void> signOut() async {
     await _auth.signOut();
+  }
+
+  User? get currentUser {
+    return _auth.currentUser;
   }
 }

@@ -4,8 +4,12 @@ import './constants.dart';
 import './screens/hotel_details_screen.dart';
 import './screens/login_screen.dart';
 import './screens/welcome_screen.dart';
+import 'controllers/auth_controller.dart';
+import 'controllers/hotels_controller.dart';
 
 void main() {
+  Get.lazyPut(() => AuthController);
+  Get.lazyPut(() => HotelsController);
   runApp(HotelsManager());
 }
 

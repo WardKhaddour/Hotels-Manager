@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/hotels_controller.dart';
-import '../models/hotel.dart';
 import '../widgets/hotel_details_item.dart';
 
 class HotelDetailsScreen extends StatelessWidget {
@@ -39,18 +38,18 @@ class HotelDetailsScreen extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.edit),
                 onPressed: () {
-                  hotelsController.addHotels(Hotel(
-                      id: "ffsd",
-                      name: "sdf",
-                      numberOfRooms: 5,
-                      location: 'location'));
+                  // hotelsController.addHotels(Hotel(
+                  //     id: "ffsd",
+                  //     name: "sdf",
+                  //     numberOfRooms: 5,
+                  //     location: 'location'));
                 },
               )
             ],
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              title: _buildRate(hotel.rate),
+              title: _buildRate(hotel.rate.toInt()),
               background: Image.asset('image'),
             ),
           ),
@@ -64,12 +63,12 @@ class HotelDetailsScreen extends StatelessWidget {
                       leadingText: hotel.name,
                       trailing: Icon(Icons.hotel),
                     ),
+                    // HotelDetailsItem(
+                    //   leadingText: hotel.location,
+                    //   trailing: Icon(Icons.location_on),
+                    // ),
                     HotelDetailsItem(
-                      leadingText: hotel.location,
-                      trailing: Icon(Icons.location_on),
-                    ),
-                    HotelDetailsItem(
-                      leadingText: '${hotel.numberOfRooms} Rooms',
+                      leadingText: '${hotel.roomsCount} Rooms',
                       trailing: Icon(Icons.meeting_room),
                     ),
                     HotelDetailsItem(

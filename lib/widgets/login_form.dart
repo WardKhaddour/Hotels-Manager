@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 import '../constants.dart';
-import '../screens/hotel_details_screen.dart';
-import '../services/auth.dart';
+import '../controllers/auth_controller.dart';
+import '../screens/hotels_screen.dart';
 import './logo.dart';
 import 'custom_button.dart';
 
@@ -18,6 +19,7 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final _authController = Get.find<AuthController>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -35,9 +37,16 @@ class _LoginFormState extends State<LoginForm> {
   Future<void> validateAndSignUp() async {
     FormState? formState = _formKey.currentState ?? FormState();
     formState.validate();
-    AuthService? authService = AuthService();
 
-    await authService.signUp(_emailController.text, _passwordController.text);
+    await _authController
+        .signUp(_emailController.text, _passwordController.text)
+        .then((value) {
+      if (value == null) {
+        Get.snackbar('Error', 'something went wrong!');
+      } else {
+        Get.offNamed(HotelsScreen.routeName);
+      }
+    });
   }
 
   Future<void> validateAndLogin() async {
@@ -49,9 +58,16 @@ class _LoginFormState extends State<LoginForm> {
       await pref.setString('email', _emailController.text);
       await pref.setString('password', _passwordController.text);
     }
-    AuthService? authService = AuthService();
-    await authService.signIn(_emailController.text, _passwordController.text);
-    Get.offNamed(HotelDetailsScreen.routeName);
+
+    await _authController
+        .login(_emailController.text, _passwordController.text)
+        .then((res) {
+      if (res == null) {
+        Get.snackbar('Error', 'something went wrong!');
+      } else {
+        Get.offNamed(HotelsScreen.routeName);
+      }
+    });
   }
 
   @override
