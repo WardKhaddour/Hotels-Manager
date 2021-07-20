@@ -46,7 +46,13 @@ class HotelsController extends GetxController {
     return res;
   }
 
-  Future<void> editHotel(Hotel hotel) async {}
+  Future<void> editHotel(Hotel hotel) async {
+    final hotelIndex = hotels.indexWhere((element) => element.id == hotel.id);
+    if (hotelIndex >= 0) {
+      hotels[hotelIndex] = hotel;
+    }
+  }
+
   Hotel findById(String id) {
     return hotels.firstWhere((element) => element.id == id);
   }
