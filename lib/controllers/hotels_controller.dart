@@ -1,11 +1,21 @@
 import 'package:get/get.dart';
 import '../models/hotel.dart';
+import '../services/firestore.dart';
 // import '../models/location.dart';
 
 String url =
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO-REY6u_fZJ0EfWq9Yqm0T8qZvHe8pfwsiw&usqp=CAU';
 
 class HotelsController extends GetxController {
+  @override
+  void onInit() async {
+    final firestore = FirestoreService();
+    print(1);
+    hotels.value = await firestore.fetchHotels() ?? [];
+    print(hotels.value.length);
+    super.onInit();
+  }
+
   final RxList<Hotel> hotels = [
     Hotel(
         name: 'LaMera',
