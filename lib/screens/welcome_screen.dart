@@ -36,7 +36,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         // await tryAutoLogin();
         Get.offNamed(LogInScreen.routeName);
       } else {
-        showDialog(context: context, builder: (context) => AlertDialog());
+        Get.snackbar(
+          'No Internet',
+          'Connect and retry',
+        );
       }
     });
   }

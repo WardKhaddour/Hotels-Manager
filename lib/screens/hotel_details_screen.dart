@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hotels_manager/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constants.dart';
 import '../controllers/hotels_controller.dart';
+import '../models/hotel.dart';
 import '../widgets/hotel_details_item.dart';
 
 class HotelDetailsScreen extends StatefulWidget {
@@ -32,7 +33,16 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     setState(() {
       _enableEditing = false;
     });
-    //TODO save editing
+    final editiedHotel = Hotel(
+      id: _hotelId,
+      name: _nameController.text,
+      location: _locationController.text,
+      phoneNumber: int.parse(_phoneNumberController.text),
+      imageUrl: _hotelsController.findById(_hotelId).imageUrl,
+      rate: _hotelsController.findById(_hotelId).rate,
+      roomsCount: int.parse(_roomsController.text),
+    );
+    _hotelsController.editHotel(editiedHotel);
   }
 
   Widget _buildRate(int rate) {
@@ -89,68 +99,94 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
           SliverList(
             delegate: SliverChildListDelegate(
               [
-                _enableEditing
-                    ? Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            EditingTextField(
-                                hint: 'Name',
-                                controller: _nameController,
-                                currentFocusNode: _nameFocusNode,
-                                nextFocusNode: _locationFocusNode),
-                            EditingTextField(
-                                hint: 'Location',
-                                controller: _locationController,
-                                currentFocusNode: _locationFocusNode,
-                                nextFocusNode: _roomsFocusNode),
-                            EditingTextField(
-                                hint: 'Rooms',
-                                controller: _roomsController,
-                                currentFocusNode: _roomsFocusNode,
-                                nextFocusNode: _phoneNumberFocusNode),
-                            EditingTextField(
-                              hint: 'Phone Number',
-                              controller: _phoneNumberController,
-                              currentFocusNode: _phoneNumberFocusNode,
-                              nextFocusNode: null,
-                              saveForm: _saveForm,
-                            ),
-                          ],
+                if (_enableEditing)
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        EditingTextField(
+                          hint: 'Name',
+                          controller: _nameController,
+                          currentFocusNode: _nameFocusNode,
+                          nextFocusNode: _locationFocusNode,
+                          validator: (_) {
+                            if (_nameController.text.isEmpty) {
+                              return 'Please input name';
+                            }
+                          },
                         ),
-                      )
-                    : Column(
-                        children: <Widget>[
-                          HotelDetailsItem(
-                            leadingText: currentHotel.name,
-                            trailing: Icon(Icons.hotel),
-                          ),
-                          HotelDetailsItem(
-                            leadingText: currentHotel.location,
-                            trailing: Icon(Icons.location_on),
-                          ),
-                          HotelDetailsItem(
-                            leadingText: '${currentHotel.roomsCount} Rooms',
-                            trailing: Icon(Icons.meeting_room),
-                          ),
-                          HotelDetailsItem(
-                            leadingText: '${currentHotel.phoneNumber}',
-                            trailing: IconButton(
-                              icon: Icon(Icons.phone),
-                              onPressed: () async {
-                                if (await canLaunch(
-                                    "tel://${currentHotel.phoneNumber}")) {
-                                  await launch(
-                                      "tel://${currentHotel.phoneNumber}");
-                                } else {
-                                  print('Cannot make call');
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                        EditingTextField(
+                          hint: 'Location',
+                          controller: _locationController,
+                          currentFocusNode: _locationFocusNode,
+                          nextFocusNode: _roomsFocusNode,
+                          validator: (_) {
+                            if (_locationController.text.isEmpty) {
+                              return 'Please input location';
+                            }
+                          },
+                        ),
+                        EditingTextField(
+                          hint: 'Rooms',
+                          controller: _roomsController,
+                          currentFocusNode: _roomsFocusNode,
+                          nextFocusNode: _phoneNumberFocusNode,
+                          validator: (_) {
+                            if (_roomsController.text.isEmpty ||
+                                _roomsController.text.runtimeType != int) {
+                              return 'Please input name';
+                            }
+                          },
+                        ),
+                        EditingTextField(
+                          hint: 'Phone Number',
+                          controller: _phoneNumberController,
+                          currentFocusNode: _phoneNumberFocusNode,
+                          nextFocusNode: null,
+                          saveForm: _saveForm,
+                          validator: (_) {
+                            if (_phoneNumberController.text.isEmpty ||
+                                _phoneNumberController.text.runtimeType !=
+                                    int) {
+                              return 'Please input name';
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Column(
+                    children: <Widget>[
+                      HotelDetailsItem(
+                        leadingText: currentHotel.name,
+                        trailing: Icon(Icons.hotel),
                       ),
+                      HotelDetailsItem(
+                        leadingText: currentHotel.location,
+                        trailing: Icon(Icons.location_on),
+                      ),
+                      HotelDetailsItem(
+                        leadingText: '${currentHotel.roomsCount} Rooms',
+                        trailing: Icon(Icons.meeting_room),
+                      ),
+                      HotelDetailsItem(
+                        leadingText: '${currentHotel.phoneNumber}',
+                        trailing: IconButton(
+                          icon: Icon(Icons.phone),
+                          onPressed: () async {
+                            if (await canLaunch(
+                                "tel://${currentHotel.phoneNumber}")) {
+                              await launch("tel://${currentHotel.phoneNumber}");
+                            } else {
+                              print('Cannot make call');
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -165,6 +201,7 @@ class EditingTextField extends StatelessWidget {
     required this.hint,
     required this.controller,
     required this.currentFocusNode,
+    required this.validator,
     this.nextFocusNode,
     this.saveForm,
   });
@@ -174,6 +211,7 @@ class EditingTextField extends StatelessWidget {
   final FocusNode? nextFocusNode;
   final VoidCallback? saveForm;
   final String hint;
+  final String? Function(String?)? validator;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -185,6 +223,7 @@ class EditingTextField extends StatelessWidget {
         decoration: kTextFieldDecoration.copyWith(
           hintText: hint,
         ),
+        validator: validator,
         textInputAction: hint == 'Phone Number'
             ? TextInputAction.done
             : TextInputAction.next,
