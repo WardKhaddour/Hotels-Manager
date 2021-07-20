@@ -105,7 +105,6 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        if (_enableEditing) Text('Edit This Hotel'),
                         EditingTextField(
                           hint: 'Name',
                           controller: _nameController,
