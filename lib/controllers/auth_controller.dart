@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../screens/login_screen.dart';
 
 import '../services/auth.dart';
 
@@ -34,5 +35,6 @@ class AuthController extends GetxService {
   Future<void> logout() async {
     keepRefresh = false;
     await _auth.signOut();
+    Get.offNamed(LogInScreen.routeName);
   }
 }

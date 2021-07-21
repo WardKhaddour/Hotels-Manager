@@ -31,7 +31,9 @@ class _LoginFormState extends State<LoginForm> {
   bool _loading = false;
   void changeMode() {
     setState(() {
-      _signMode = SignMode.SignUp;
+      _signMode == SignMode.SignUp
+          ? _signMode = SignMode.LogIn
+          : _signMode = SignMode.SignUp;
     });
   }
 
@@ -176,22 +178,26 @@ class _LoginFormState extends State<LoginForm> {
                   : validateAndSignUp,
               title: _signMode == SignMode.LogIn ? 'Log In' : 'Create Account',
             ),
-            if (_signMode == SignMode.LogIn)
-              Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Don\'t Have Account Yet?'),
+            Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _signMode == SignMode.LogIn
+                          ? 'Don\'t Have Account Yet?'
+                          : '',
                     ),
-                    CustomButton(
-                      onPress: changeMode,
-                      title: 'Create Now',
-                    ),
-                  ],
-                ),
-              )
+                  ),
+                  CustomButton(
+                    onPress: changeMode,
+                    title:
+                        _signMode == SignMode.LogIn ? 'Create Now' : 'Log In',
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),

@@ -12,24 +12,28 @@ class HotelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        print('iddddddddd ${hotel.id}');
         Get.toNamed(HotelDetailsScreen.routeName, arguments: {'id': hotel.id});
       },
-      child: Card(
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(hotel.imageUrl),
-          ),
-          title: Text(hotel.name),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(hotel.rate.toStringAsFixed(1)),
-              SizedBox(
-                width: 10,
-              ),
-              Icon(Icons.star),
-            ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(hotel.imageUrl),
+            ),
+            title: Text(hotel.name),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(hotel.rate.toStringAsFixed(1)),
+                SizedBox(
+                  width: 10,
+                ),
+                Icon(Icons.star),
+              ],
+            ),
           ),
         ),
       ),

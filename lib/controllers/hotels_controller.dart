@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import '../models/hotel.dart';
 import '../services/firestore.dart';
-// import '../models/location.dart';
 
 String url =
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO-REY6u_fZJ0EfWq9Yqm0T8qZvHe8pfwsiw&usqp=CAU';
@@ -11,12 +10,12 @@ class HotelsController extends GetxController {
   void onInit() async {
     final firestore = FirestoreService();
     print(1);
-    hotels.value = await firestore.fetchHotels() ?? [];
-    print(hotels.value.length);
+    hotels = await firestore.fetchHotels() ?? [];
+    print(hotels.length);
     super.onInit();
   }
 
-  final RxList<Hotel> hotels = [
+  List<Hotel> hotels = [
     Hotel(
         name: 'LaMera',
         // location: Location(21.0542, 25.454252),
@@ -38,12 +37,12 @@ class HotelsController extends GetxController {
   ].obs;
 
   Future<void>? fetchHotels() async {
-    //TODO: fetch hotels from server
+    hotels.addAll(await FirestoreService().fetchHotels() ?? []);
   }
 
-  Future<void>? addHotel(Hotel hotel) async {
+  Future<void> addHotel(Hotel hotel) async {
     hotels.add(hotel);
-    //TODO: add the hotel to the server
+    await FirestoreService().addHotel(hotel);
   }
 
   List<Hotel>? search(String? searchText) {
@@ -64,6 +63,19 @@ class HotelsController extends GetxController {
   }
 
   Hotel findById(String id) {
-    return hotels.firstWhere((element) => element.id == id);
+    return hotels.firstWhere(
+        (element) =>
+            element.id.toLowerCase().toString() == id.toLowerCase().toString(),
+        orElse: () {
+      return Hotel(
+        name: '',
+        location: '',
+        roomsCount: 0,
+        id: id,
+        imageUrl: '',
+        rate: 0,
+        phoneNumber: 0,
+      );
+    });
   }
 }

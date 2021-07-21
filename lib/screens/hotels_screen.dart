@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
+import '../models/hotel.dart';
 import '../screens/login_screen.dart';
-import '../services/firestore.dart';
 import '../widgets/hotel_card.dart';
 
 class HotelsScreen extends StatefulWidget {
@@ -18,6 +20,20 @@ class _HotelsScreenState extends State<HotelsScreen> {
   final authController = Get.find<AuthController>();
   bool searchMode = false;
   String searchText = '';
+  bool _isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 0)).then((value) async {
+      setState(() {
+        _isLoading = true;
+      });
+      await hotelsController.fetchHotels();
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,25 +69,44 @@ class _HotelsScreenState extends State<HotelsScreen> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          Container(
-            height: 200,
-            child: ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, i) =>
-                  HotelCard(searchMode ? searchHotels![i] : hotels[i]),
-              itemCount: searchMode ? searchHotels!.length : hotels.length,
-            ),
-          ),
-          RaisedButton(
-              onPressed: () {
-                final firestore = FirestoreService();
-                firestore.fetchHotels();
-              },
-              child: Text('test')),
-        ],
-      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : StreamBuilder<Object>(
+              stream:
+                  FirebaseFirestore.instance.collection('hotels').snapshots(),
+              builder: (context, snapshot) {
+                return snapshot.hasData
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              // physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, i) => HotelCard(
+                                  searchMode ? searchHotels![i] : hotels[i]),
+                              itemCount: searchMode
+                                  ? searchHotels!.length
+                                  : hotels.length,
+                            ),
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                hotelsController.addHotel(
+                                  Hotel(
+                                      id: DateTime.now().toString(),
+                                      name: "sd",
+                                      rate: 4,
+                                      phoneNumber: 4555,
+                                      imageUrl: '',
+                                      location: 'damas',
+                                      roomsCount: 455),
+                                );
+                              },
+                              child: Text('Add hotel')),
+                        ],
+                      )
+                    : Center(child: Text('No Hotels Avilable'));
+              }),
     );
   }
 }

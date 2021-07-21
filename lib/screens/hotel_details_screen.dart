@@ -62,6 +62,8 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final currentHotel = _hotelsController.findById(_hotelId);
+    print('mf name');
+    print(currentHotel.name);
     _nameController.text = currentHotel.name;
     _locationController.text = currentHotel.location;
     _roomsController.text = currentHotel.roomsCount.toString();
