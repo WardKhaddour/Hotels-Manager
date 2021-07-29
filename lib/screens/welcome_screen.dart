@@ -55,7 +55,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Logo(),
+          Hero(
+            tag: 'logo',
+            child: Logo(),
+          ),
           Expanded(
             flex: 1,
             child: Text(

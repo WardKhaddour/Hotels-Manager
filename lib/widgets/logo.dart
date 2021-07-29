@@ -11,13 +11,10 @@ class Logo extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Container(
-          child: Hero(
-            tag: 'logo',
-            child: Image(
-              fit: BoxFit.contain,
-              image: AssetImage(
-                tasqmentLog,
-              ),
+          child: Image(
+            fit: BoxFit.contain,
+            image: AssetImage(
+              tasqmentLog,
             ),
           ),
         ),
