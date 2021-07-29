@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/login_screen.dart';
 import '../services/check_internet.dart';
 import '../widgets/logo.dart';
@@ -18,7 +19,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool _isConnected = false;
 
   Future<bool?> tryAutoLogin() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final pref = await SharedPreferences.getInstance();
+    final saveUser = pref.getBool('save-user') ?? false;
+    final user = saveUser ? FirebaseAuth.instance.currentUser : null;
     if (user != null) {
       return true;
     }

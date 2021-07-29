@@ -67,8 +67,7 @@ class _LoginFormState extends State<LoginForm> {
     });
     if (_saveUser) {
       final pref = await SharedPreferences.getInstance();
-      await pref.setString('email', _emailController.text);
-      await pref.setString('password', _passwordController.text);
+      await pref.setBool('save-user', _saveUser);
     }
 
     await _authController
