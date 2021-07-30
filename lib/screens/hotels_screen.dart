@@ -1,3 +1,4 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,75 +21,90 @@ class _HotelsScreenState extends State<HotelsScreen> {
   final authController = Get.find<AuthController>();
   bool searchMode = false;
   String searchText = '';
-  bool _isLoading = false;
+  // bool _isLoading = false;
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0)).then((value) async {
-      setState(() {
-        _isLoading = true;
-      });
-      await hotelsController.fetchHotels();
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    // Future.delayed(Duration(seconds: 0)).then((value) async {
+    //   setState(() {
+    //     _isLoading = true;
+    //   });
+    //   await hotelsController.fetchHotels();
+    //   setState(() {
+    //     _isLoading = false;
+    //   });
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    final hotels = hotelsController.hotels;
-    final searchHotels = hotelsController.search(searchText);
+    // final hotels = hotelsController.hotels;
+    // final searchHotels = hotelsController.search(searchText);
 
     return Scaffold(
-        appBar: AppBar(
-          title: searchMode
-              ? TextField(
-                  autofocus: true,
-                  onChanged: (val) {
-                    setState(() {
-                      searchText = val;
-                    });
-                  },
-                )
-              : Text('Hotels'),
-          actions: [
-            IconButton(
-              icon: Icon(searchMode ? Icons.arrow_forward : Icons.search),
+      appBar: AppBar(
+        title: searchMode
+            ? TextField(
+                autofocus: true,
+                onChanged: (val) {
+                  setState(() {
+                    searchText = val;
+                  });
+                },
+              )
+            : Text('Hotels'),
+        actions: [
+          IconButton(
+            icon: Icon(searchMode ? Icons.arrow_forward : Icons.search),
+            onPressed: () {
+              setState(() {
+                searchMode = !searchMode;
+              });
+            },
+          ),
+          IconButton(
+              icon: Icon(Icons.logout),
               onPressed: () {
-                setState(() {
-                  searchMode = !searchMode;
-                });
-              },
-            ),
-            IconButton(
-                icon: Icon(Icons.logout),
-                onPressed: () {
-                  authController.logout();
-                  Get.offNamed(LogInScreen.routeName);
-                })
-          ],
-        ),
-        body: _isLoading
+                authController.logout();
+                Get.offNamed(LogInScreen.routeName);
+              })
+        ],
+      ),
+      body: Obx(
+        () => hotelsController.isLoading.value
             ? Center(child: CircularProgressIndicator())
             : Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: ListView.builder(
-                      // physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, i) =>
-                          HotelCard(searchMode ? searchHotels![i] : hotels[i]),
-                      itemCount:
-                          searchMode ? searchHotels!.length : hotels.length,
-                    ),
+                    child: hotelsController.hotels.isEmpty
+                        ? Center(child: Text('No Hotels Avilable'))
+                        : StreamBuilder<Object>(
+                            stream: FirebaseFirestore.instance
+                                .collection('hotels')
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              return ListView.builder(
+                                itemBuilder: (context, i) => HotelCard(
+                                    searchMode
+                                        ? hotelsController
+                                            .search(searchText)![i]
+                                        : hotelsController.hotels[i]),
+                                itemCount: searchMode
+                                    ? hotelsController
+                                        .search(searchText)!
+                                        .length
+                                    : hotelsController.hotels.length,
+                              );
+                            }),
                   ),
                   ElevatedButton(
                       onPressed: () {
                         hotelsController.addHotel(
                           Hotel(
+                              authorEmail: authController.currentUser,
                               id: DateTime.now().toString(),
-                              name: "sd",
+                              name: "faslknfas",
                               rate: 4,
                               phoneNumber: 4555,
                               imageUrl: '',
@@ -98,6 +114,8 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       },
                       child: Text('Add hotel')),
                 ],
-              ));
+              ),
+      ),
+    );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../constants.dart';
+import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../widgets/hotel_details_item.dart';
@@ -24,12 +26,16 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   final FocusNode _roomsFocusNode = FocusNode();
   final FocusNode _phoneNumberFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _hotelsController = HotelsController();
+  final _hotelsController = Get.find<HotelsController>();
+  final _authController = Get.find<AuthController>();
+
   final String _hotelId =
       Get.arguments != null ? Get.arguments['id'] as String : '';
   bool _enableEditing = false;
 
   void _saveForm() {
+    // final isValid = _formKey.currentState!.validate();
+    // if (!isValid) return;
     setState(() {
       _enableEditing = false;
     });
@@ -46,17 +52,37 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   }
 
   Widget _buildRate(int rate) {
-    return rate == -1
+    return rate < 0
         ? Text('Not Rated')
         : Row(
             children: <Widget>[
-              for (int i = 0; i < rate; i++)
+              for (int i = 0; i < rate; ++i)
                 Icon(
                   Icons.star,
                   color: Colors.yellowAccent,
                 ),
+              for (int i = rate; i < 5; ++i)
+                Icon(
+                  Icons.star,
+                  color: Colors.white,
+                )
             ],
           );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _nameController.dispose();
+    _roomsController.dispose();
+    _hotelsController.dispose();
+    _locationController.dispose();
+    _phoneNumberController.dispose();
+    _nameFocusNode.dispose();
+    _roomsFocusNode.dispose();
+    _locationFocusNode.dispose();
+    _phoneNumberFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,16 +101,18 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
           SliverAppBar(
             pinned: true,
             actions: [
-              IconButton(
-                icon: Icon(_enableEditing ? Icons.save : Icons.edit),
-                onPressed: _enableEditing
-                    ? _saveForm
-                    : () {
-                        setState(() {
-                          _enableEditing = true;
-                        });
-                      },
-              ),
+              _authController.currentUser == currentHotel.authorEmail
+                  ? IconButton(
+                      icon: Icon(_enableEditing ? Icons.save : Icons.edit),
+                      onPressed: _enableEditing
+                          ? _saveForm
+                          : () {
+                              setState(() {
+                                _enableEditing = true;
+                              });
+                            },
+                    )
+                  : SizedBox()
             ],
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
@@ -131,17 +159,19 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           hint: 'Rooms',
                           controller: _roomsController,
                           currentFocusNode: _roomsFocusNode,
+                          keyboardType: TextInputType.number,
                           nextFocusNode: _phoneNumberFocusNode,
                           validator: (_) {
                             if (_roomsController.text.isEmpty ||
                                 _roomsController.text.runtimeType != int) {
-                              return 'Please input name';
+                              return 'Please input number of rooms';
                             }
                           },
                         ),
                         EditingTextField(
                           hint: 'Phone Number',
                           controller: _phoneNumberController,
+                          keyboardType: TextInputType.number,
                           currentFocusNode: _phoneNumberFocusNode,
                           nextFocusNode: null,
                           saveForm: _saveForm,
@@ -149,7 +179,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                             if (_phoneNumberController.text.isEmpty ||
                                 _phoneNumberController.text.runtimeType !=
                                     int) {
-                              return 'Please input name';
+                              return 'Please input phone number';
                             }
                           },
                         ),
@@ -204,11 +234,13 @@ class EditingTextField extends StatelessWidget {
     required this.validator,
     this.nextFocusNode,
     this.saveForm,
+    this.keyboardType,
   });
 
   final TextEditingController controller;
   final FocusNode currentFocusNode;
   final FocusNode? nextFocusNode;
+  final TextInputType? keyboardType;
   final VoidCallback? saveForm;
   final String hint;
   final String? Function(String?)? validator;
@@ -219,6 +251,7 @@ class EditingTextField extends StatelessWidget {
       child: TextFormField(
         autofocus: true,
         controller: controller,
+        keyboardType: keyboardType ?? TextInputType.text,
         focusNode: currentFocusNode,
         decoration: kTextFieldDecoration.copyWith(
           hintText: hint,

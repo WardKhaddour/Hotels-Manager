@@ -8,10 +8,11 @@ class AuthController extends GetxService {
   final _auth = AuthService();
   final isLoggedIn = false.obs;
   bool keepRefresh = true;
-
+  String? currentUser;
   @override
   void onInit() async {
     final _auth = FirebaseAuth.instance;
+    currentUser = _auth.currentUser!.email!;
     _auth.idTokenChanges().listen((event) {
       isLoggedIn.value = event != null;
       if (event == null && keepRefresh) {

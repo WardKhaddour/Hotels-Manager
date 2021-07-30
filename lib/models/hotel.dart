@@ -6,6 +6,13 @@ class Hotel {
   final String imageUrl;
   final double rate;
   final int phoneNumber;
+  String? authorEmail;
+  // String? get authorEmail{
+  //   return _authorEmail;
+  // }
+  // set authorEmail(String? email){
+  //   _authorEmail=email;
+  // }
   factory Hotel.fromDocuments(Map<String, dynamic> data) {
     return Hotel(
       id: data['id'] as String,
@@ -17,13 +24,13 @@ class Hotel {
       roomsCount: data['roomCount'] as int,
     );
   }
-  Hotel({
-    required this.name,
-    required this.location,
-    required this.roomsCount,
-    required this.id,
-    required this.imageUrl,
-    required this.rate,
-    required this.phoneNumber,
-  });
+  Hotel(
+      {required this.name,
+      required this.location,
+      required this.roomsCount,
+      required this.id,
+      required this.imageUrl,
+      required this.rate,
+      required this.phoneNumber,
+      this.authorEmail});
 }
