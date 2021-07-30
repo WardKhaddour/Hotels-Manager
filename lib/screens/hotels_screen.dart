@@ -41,72 +41,63 @@ class _HotelsScreenState extends State<HotelsScreen> {
     final searchHotels = hotelsController.search(searchText);
 
     return Scaffold(
-      appBar: AppBar(
-        title: searchMode
-            ? TextField(
-                autofocus: true,
-                onChanged: (val) {
-                  setState(() {
-                    searchText = val;
-                  });
-                },
-              )
-            : Text('Hotels'),
-        actions: [
-          IconButton(
-            icon: Icon(searchMode ? Icons.arrow_forward : Icons.search),
-            onPressed: () {
-              setState(() {
-                searchMode = !searchMode;
-              });
-            },
-          ),
-          IconButton(
-              icon: Icon(Icons.logout),
+        appBar: AppBar(
+          title: searchMode
+              ? TextField(
+                  autofocus: true,
+                  onChanged: (val) {
+                    setState(() {
+                      searchText = val;
+                    });
+                  },
+                )
+              : Text('Hotels'),
+          actions: [
+            IconButton(
+              icon: Icon(searchMode ? Icons.arrow_forward : Icons.search),
               onPressed: () {
-                authController.logout();
-                Get.offNamed(LogInScreen.routeName);
-              })
-        ],
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : StreamBuilder<Object>(
-              stream:
-                  FirebaseFirestore.instance.collection('hotels').snapshots(),
-              builder: (context, snapshot) {
-                return snapshot.hasData
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                              // physics: NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, i) => HotelCard(
-                                  searchMode ? searchHotels![i] : hotels[i]),
-                              itemCount: searchMode
-                                  ? searchHotels!.length
-                                  : hotels.length,
-                            ),
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                hotelsController.addHotel(
-                                  Hotel(
-                                      id: DateTime.now().toString(),
-                                      name: "sd",
-                                      rate: 4,
-                                      phoneNumber: 4555,
-                                      imageUrl: '',
-                                      location: 'damas',
-                                      roomsCount: 455),
-                                );
-                              },
-                              child: Text('Add hotel')),
-                        ],
-                      )
-                    : Center(child: Text('No Hotels Avilable'));
-              }),
-    );
+                setState(() {
+                  searchMode = !searchMode;
+                });
+              },
+            ),
+            IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: () {
+                  authController.logout();
+                  Get.offNamed(LogInScreen.routeName);
+                })
+          ],
+        ),
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      // physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, i) =>
+                          HotelCard(searchMode ? searchHotels![i] : hotels[i]),
+                      itemCount:
+                          searchMode ? searchHotels!.length : hotels.length,
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        hotelsController.addHotel(
+                          Hotel(
+                              id: DateTime.now().toString(),
+                              name: "sd",
+                              rate: 4,
+                              phoneNumber: 4555,
+                              imageUrl: '',
+                              location: 'damas',
+                              roomsCount: 455),
+                        );
+                      },
+                      child: Text('Add hotel')),
+                ],
+              ));
   }
 }

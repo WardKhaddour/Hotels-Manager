@@ -8,14 +8,12 @@ String url =
 class HotelsController extends GetxController {
   @override
   void onInit() async {
-    final firestore = FirestoreService();
-    print(1);
-    hotels = await firestore.fetchHotels() ?? [];
-    print(hotels.length);
+    // final firestore = FirestoreService();
+    // hotels = await firestore.fetchHotels() ?? [];
     super.onInit();
   }
 
-  List<Hotel> hotels = [
+  RxList<Hotel> hotels = [
     Hotel(
         name: 'LaMera',
         // location: Location(21.0542, 25.454252),
@@ -37,7 +35,11 @@ class HotelsController extends GetxController {
   ].obs;
 
   Future<void>? fetchHotels() async {
-    hotels.addAll(await FirestoreService().fetchHotels() ?? []);
+    print('length before fetch ${hotels.length}');
+    final fetchedHotels = await FirestoreService().fetchHotels();
+    hotels += fetchedHotels!;
+
+    print('length after fetch ${hotels.length}');
   }
 
   Future<void> addHotel(Hotel hotel) async {
@@ -63,19 +65,22 @@ class HotelsController extends GetxController {
   }
 
   Hotel findById(String id) {
-    return hotels.firstWhere(
-        (element) =>
-            element.id.toLowerCase().toString() == id.toLowerCase().toString(),
-        orElse: () {
-      return Hotel(
-        name: '',
-        location: '',
+    var currentHotel = Hotel(
+        name: "name",
+        location: "location",
         roomsCount: 0,
-        id: id,
-        imageUrl: '',
-        rate: 0,
-        phoneNumber: 0,
-      );
-    });
+        id: "id",
+        imageUrl: "imageUrl",
+        rate: 0.0,
+        phoneNumber: 555);
+    print(hotels.length);
+    for (var hotel in hotels) {
+      if (hotel.id == id) {
+        print('equals');
+        currentHotel = hotel;
+        break;
+      }
+    }
+    return currentHotel;
   }
 }

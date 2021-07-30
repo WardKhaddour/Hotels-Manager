@@ -10,15 +10,16 @@ class LogInScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         body: FutureBuilder(
-            future: Firebase.initializeApp(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return LoginForm();
-              } else if (snapshot.connectionState == ConnectionState.none) {
-                return Text("No data");
-              }
-              return CircularProgressIndicator();
-            }),
+          future: Firebase.initializeApp(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return LoginForm();
+            } else if (snapshot.connectionState == ConnectionState.none) {
+              return Text("No data");
+            }
+            return CircularProgressIndicator();
+          },
+        ),
       ),
     );
   }

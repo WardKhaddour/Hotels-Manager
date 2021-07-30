@@ -102,7 +102,7 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Hero(tag:'logo',child:Logo(),),
+            Logo(),
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.all(10.0),

@@ -7,20 +7,24 @@ class FirestoreService {
   Future<List<Hotel>?> fetchHotels() async {
     try {
       CollectionReference hotelsCollection = fireStore.collection('hotels');
-      final hotelsRes = await hotelsCollection.get();
+      final hotelsRes = (await hotelsCollection.get()).docs;
       List<Hotel> fetchedHotels;
       fetchedHotels = [];
-      for (var e in hotelsRes.docs) {
-        fetchedHotels.add(Hotel(
-            id: e['id'] as String,
-            name: e['name'] as String,
-            imageUrl: e['imageUrl'] as String,
-            rate: e['rate'] as double,
-            phoneNumber: e['phoneNumber'] as int,
-            location: e['location'] as String,
-            roomsCount: e['roomCount'] as int));
+      for (var e in hotelsRes) {
+        var hotelData = e.data() as Map<String, dynamic>;
+        fetchedHotels.add(Hotel.fromDocuments(hotelData));
       }
-      print(fetchedHotels);
+
+      // for (var e in dataMap) {
+      //   fetchedHotels.add(Hotel(
+      //       id: e.get('id') as String,
+      //       name: e.get('name') as String,
+      //       imageUrl: e.get('imageUrl') as String,
+      //       rate: e.get('rate') as double,
+      //       phoneNumber: e.get('phoneNumber') as int,
+      //       location: e.get('location') as String,
+      //       roomsCount: e.get('roomsCount') as int));
+      // }
       return fetchedHotels;
     } on Exception catch (_) {
       return null;

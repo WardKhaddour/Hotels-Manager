@@ -12,7 +12,6 @@ class HotelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print('iddddddddd ${hotel.id}');
         Get.toNamed(HotelDetailsScreen.routeName, arguments: {'id': hotel.id});
       },
       child: Padding(
