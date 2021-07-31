@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import '../models/hotel.dart';
 import '../services/firestore.dart';
@@ -8,20 +9,21 @@ import '../services/firestore.dart';
 class HotelsController extends GetxController {
   RxList<Hotel> hotels = <Hotel>[].obs;
   RxBool isLoading = false.obs;
-  @override
-  void onInit() async {
-    super.onInit();
-    print("init controller");
-    // final firestore = FirestoreService();
-    isLoading.toggle();
-    print('loading before fitchung $isLoading');
-    final fetchedHotels = await FirestoreService().fetchHotels();
-    hotels.value += fetchedHotels!;
-    print('hotels $hotels'); // hotels = await firestore.fetchHotels() ?? [];
-    isLoading.toggle();
-    print('loading after fitchung $isLoading');
-    print("finish fitching");
-  }
+  // @override
+  // void onInit() async {
+  //   super.onInit();
+  //   print("init controller");
+  //   final firestore = FirestoreService();
+  //   isLoading.toggle();
+  //   print('loading before fitchung $isLoading');
+  //   final fetchedHotels = await FirestoreService().fetchHotels();
+  //   hotels.value += fetchedHotels!;
+  //   print('hotels $hotels');
+  //    hotels = await firestore.fetchHotels() ?? [];
+  //   isLoading.toggle();
+  //   print('loading after fitchung $isLoading');
+  //   print("finish fitching");
+  // }
 
   // RxList<Hotel> hotels = [
   //   Hotel(
@@ -50,20 +52,33 @@ class HotelsController extends GetxController {
 
   //   print('length after fetch ${hotels.length}');
   // }
+  Future<void>? fetchHotels() async {
+    print("init controller");
+    // final firestore = FirestoreService();
+    // isLoading.toggle();
+    print('loading before fitchung $isLoading');
+    final fetchedHotels = await FirestoreService().fetchHotels();
+    hotels.value += fetchedHotels!;
+    print('hotels $hotels'); // hotels = await firestore.fetchHotels() ?? [];
+    // isLoading.toggle();
+    print('loading after fitchung $isLoading');
+    print("finish fitching");
+  }
 
   Future<void> addHotel(Hotel hotel) async {
-    hotels.add(hotel);
-    await FirestoreService().addHotel(hotel);
+    try {
+      await FirestoreService().addHotel(hotel);
+    } on FirebaseException catch (e) {
+      print(e);
+    }
   }
 
   List<Hotel>? search(String? searchText) {
     if (searchText == '') return [];
-    final all = hotels;
-    final res = all
+    return hotels
         .where((element) =>
             element.name.toLowerCase().contains(searchText!.toLowerCase()))
         .toList();
-    return res;
   }
 
   Future<void> editHotel(Hotel hotel) async {

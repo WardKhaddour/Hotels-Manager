@@ -25,22 +25,31 @@ class _HotelsScreenState extends State<HotelsScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(Duration(seconds: 0)).then((value) async {
-    //   setState(() {
-    //     _isLoading = true;
-    //   });
-    //   await hotelsController.fetchHotels();
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // });
+    Future.delayed(Duration(seconds: 0)).then((value) async {
+      //   setState(() {
+      //     _isLoading = true;
+      //   });
+      await hotelsController.fetchHotels();
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+    });
+  }
+
+  void addHotel(QueryDocumentSnapshot<Map<String, dynamic>> element) {
+    hotelsController.hotels.add(Hotel.fromDocuments(element.data()));
   }
 
   @override
   Widget build(BuildContext context) {
     // final hotels = hotelsController.hotels;
-    // final searchHotels = hotelsController.search(searchText);
-
+    final searchHotels = hotelsController.search(searchText);
+    final _hotelsStream = FirebaseFirestore.instance
+        .collection('hotels')
+        .snapshots(includeMetadataChanges: true);
+    _hotelsStream.listen((event) {
+      event.docs.forEach(addHotel);
+    });
     return Scaffold(
       appBar: AppBar(
         title: searchMode
@@ -77,26 +86,44 @@ class _HotelsScreenState extends State<HotelsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: hotelsController.hotels.isEmpty
-                        ? Center(child: Text('No Hotels Avilable'))
-                        : StreamBuilder<Object>(
-                            stream: FirebaseFirestore.instance
-                                .collection('hotels')
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              return ListView.builder(
-                                itemBuilder: (context, i) => HotelCard(
-                                    searchMode
-                                        ? hotelsController
-                                            .search(searchText)![i]
-                                        : hotelsController.hotels[i]),
-                                itemCount: searchMode
-                                    ? hotelsController
-                                        .search(searchText)!
-                                        .length
-                                    : hotelsController.hotels.length,
-                              );
-                            }),
+                    child: StreamBuilder<QuerySnapshot>(
+                        stream: _hotelsStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Something went wrong'),
+                            );
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return !searchMode
+                              ? ListView(
+                                  children: snapshot.data!.docs.map((document) {
+                                    var data =
+                                        document.data() as Map<String, dynamic>;
+                                    return HotelCard(Hotel.fromDocuments(data));
+                                  }).toList(),
+                                  // itemBuilder: (context, i) => HotelCard(
+                                  //     searchMode
+                                  //         ? hotelsController
+                                  //             .search(searchText)![i]
+                                  //         : hotelsController.hotels[i]),
+                                  // itemCount: searchMode
+                                  //     ? hotelsController
+                                  //         .search(searchText)!
+                                  //         .length
+                                  //     : hotelsController.hotels.length,
+                                )
+                              : ListView.builder(
+                                  itemBuilder: (context, index) =>
+                                      HotelCard(searchHotels![index]),
+                                  itemCount: searchHotels!.length,
+                                );
+                        }),
                   ),
                   ElevatedButton(
                       onPressed: () {
