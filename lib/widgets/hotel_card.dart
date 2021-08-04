@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controllers/auth_controller.dart';
 import '../models/hotel.dart';
 import '../screens/hotel_details_screen.dart';
 
@@ -33,6 +34,16 @@ class HotelCard extends StatelessWidget {
                 Icon(Icons.star),
               ],
             ),
+            //   hotel.authorEmail == AuthController().currentUser
+            //       ? TextButton.icon(
+            //           onPressed: () {
+            //             //TODO take room
+            //           },
+            //           icon: Icon(Icons.takeout_dining),
+            //           label: Text('Take Room'),
+            //         )
+            //       : SizedBox(),
+            // ],
           ),
         ),
       ),

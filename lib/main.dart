@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import './constants.dart';
 import './screens/hotel_details_screen.dart';
 import './screens/hotels_screen.dart';
@@ -8,6 +9,7 @@ import './screens/login_screen.dart';
 import './screens/welcome_screen.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/hotels_controller.dart';
+import 'screens/add_hotel_screen.dart';
 
 Future<void> main() async {
   Get.lazyPut(() => AuthController());
@@ -46,6 +48,7 @@ class HotelsManager extends StatelessWidget {
         LogInScreen.routeName: (ctx) => LogInScreen(),
         HotelsScreen.routeName: (ctx) => HotelsScreen(),
         HotelDetailsScreen.routeName: (ctx) => HotelDetailsScreen(),
+        AddHotelScreen.routeName: (ctx) => AddHotelScreen(),
       },
     );
   }

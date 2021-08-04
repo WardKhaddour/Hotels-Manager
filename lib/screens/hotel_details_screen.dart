@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hotels_manager/widgets/gradient_icon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../constants.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
+import '../widgets/editing_text_field.dart';
 import '../widgets/hotel_details_item.dart';
 
 class HotelDetailsScreen extends StatefulWidget {
@@ -20,10 +21,12 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _roomsController = TextEditingController();
+  final TextEditingController _roomPriceController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _locationFocusNode = FocusNode();
   final FocusNode _roomsFocusNode = FocusNode();
+  final FocusNode _roomPriceFocusNode = FocusNode();
   final FocusNode _phoneNumberFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _hotelsController = Get.find<HotelsController>();
@@ -45,27 +48,34 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
       location: _locationController.text,
       phoneNumber: int.parse(_phoneNumberController.text),
       imageUrl: _hotelsController.findById(_hotelId).imageUrl,
-      rate: _hotelsController.findById(_hotelId).rate,
+      rates: _hotelsController.findById(_hotelId).rates,
       roomsCount: int.parse(_roomsController.text),
+      roomPrice: double.parse(_roomPriceController.text),
     );
     _hotelsController.editHotel(editiedHotel);
   }
 
-  Widget _buildRate(int rate) {
+  Widget _buildRate(double rate) {
+    print(rate);
     return rate < 0
         ? Text('Not Rated')
         : Row(
             children: <Widget>[
-              for (int i = 0; i < rate; ++i)
+              for (int i = 0; i < rate.toInt(); ++i)
                 Icon(
                   Icons.star,
                   color: Colors.yellowAccent,
                 ),
-              for (int i = rate; i < 5; ++i)
-                Icon(
-                  Icons.star,
-                  color: Colors.white,
-                )
+              if (rate.toInt() != rate)
+                GradientIcon(
+                    child: Icon(
+                      Icons.star,
+                    ),
+                    colors: [
+                      Colors.yellowAccent,
+                      Colors.yellowAccent,
+                      Colors.white
+                    ])
             ],
           );
   }
@@ -117,7 +127,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              title: _buildRate(currentHotel.rate.toInt()),
+              title: _buildRate(currentHotel.rate.toDouble()),
               background: Image.network(
                 currentHotel.imageUrl,
                 fit: BoxFit.cover,
@@ -160,10 +170,24 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           controller: _roomsController,
                           currentFocusNode: _roomsFocusNode,
                           keyboardType: TextInputType.number,
+                          nextFocusNode: _roomPriceFocusNode,
+                          validator: (_) {
+                            if (_roomsController.text.isEmpty ||
+                                int.tryParse(_roomsController.text) == null) {
+                              return 'Please input number of rooms';
+                            }
+                          },
+                        ),
+                        EditingTextField(
+                          hint: 'Room Price',
+                          controller: _roomPriceController,
+                          currentFocusNode: _roomPriceFocusNode,
+                          keyboardType: TextInputType.number,
                           nextFocusNode: _phoneNumberFocusNode,
                           validator: (_) {
                             if (_roomsController.text.isEmpty ||
-                                _roomsController.text.runtimeType != int) {
+                                double.tryParse(_roomsController.text) ==
+                                    null) {
                               return 'Please input number of rooms';
                             }
                           },
@@ -221,50 +245,6 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class EditingTextField extends StatelessWidget {
-  EditingTextField({
-    required this.hint,
-    required this.controller,
-    required this.currentFocusNode,
-    required this.validator,
-    this.nextFocusNode,
-    this.saveForm,
-    this.keyboardType,
-  });
-
-  final TextEditingController controller;
-  final FocusNode currentFocusNode;
-  final FocusNode? nextFocusNode;
-  final TextInputType? keyboardType;
-  final VoidCallback? saveForm;
-  final String hint;
-  final String? Function(String?)? validator;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        autofocus: true,
-        controller: controller,
-        keyboardType: keyboardType ?? TextInputType.text,
-        focusNode: currentFocusNode,
-        decoration: kTextFieldDecoration.copyWith(
-          hintText: hint,
-        ),
-        validator: validator,
-        textInputAction: hint == 'Phone Number'
-            ? TextInputAction.done
-            : TextInputAction.next,
-        onFieldSubmitted: (_) {
-          nextFocusNode != null
-              ? FocusScope.of(context).requestFocus(nextFocusNode)
-              : saveForm;
-        },
       ),
     );
   }

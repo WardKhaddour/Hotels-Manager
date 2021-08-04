@@ -4,15 +4,10 @@ class Hotel {
   final int roomsCount;
   final String location;
   final String imageUrl;
-  final double rate;
+  final List<int> rates;
   final int phoneNumber;
+  final double roomPrice;
   String? authorEmail;
-  // String? get authorEmail{
-  //   return _authorEmail;
-  // }
-  // set authorEmail(String? email){
-  //   _authorEmail=email;
-  // }
   factory Hotel.fromDocuments(Map<String, dynamic> data) {
     return Hotel(
       id: data['id'] as String,
@@ -20,17 +15,28 @@ class Hotel {
       location: data['location'] as String,
       name: data['name'] as String,
       phoneNumber: data['phoneNumber'] as int,
-      rate: data['rate'] as double,
-      roomsCount: data['roomCount'] as int,
+      rates: List.castFrom<dynamic, int>(data['rates'] as List),
+      roomsCount: data['roomsCount'] as int,
+      roomPrice: data['roomPrice'] as double,
     );
   }
-  Hotel(
-      {required this.name,
-      required this.location,
-      required this.roomsCount,
-      required this.id,
-      required this.imageUrl,
-      required this.rate,
-      required this.phoneNumber,
-      this.authorEmail});
+  double get rate {
+    var sum = 0;
+    for (var item in rates) {
+      sum += item;
+    }
+    return sum / rates.length;
+  }
+
+  Hotel({
+    required this.name,
+    required this.location,
+    required this.roomsCount,
+    required this.id,
+    required this.imageUrl,
+    required this.rates,
+    required this.phoneNumber,
+    required this.roomPrice,
+    this.authorEmail,
+  });
 }

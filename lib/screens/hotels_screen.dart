@@ -1,4 +1,3 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,8 +5,9 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
-import '../screens/login_screen.dart';
 import '../widgets/hotel_card.dart';
+import './add_hotel_screen.dart';
+import './login_screen.dart';
 
 class HotelsScreen extends StatefulWidget {
   static const String routeName = '/hotels-screen';
@@ -71,13 +71,46 @@ class _HotelsScreenState extends State<HotelsScreen> {
               });
             },
           ),
-          IconButton(
-              icon: Icon(Icons.logout),
-              onPressed: () {
-                authController.logout();
-                Get.offNamed(LogInScreen.routeName);
-              })
         ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 250,
+                height: 250,
+                child: Image.asset(
+                  'assets/images/tasqment-logo.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                leading: Icon(Icons.add),
+                title: Text('Add Hotel'),
+                onTap: () {
+                  Get.toNamed(AddHotelScreen.routeName);
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('Log Out'),
+                onTap: () {
+                  authController.logout();
+                  Get.offNamed(LogInScreen.routeName);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       body: Obx(
         () => hotelsController.isLoading.value
@@ -87,62 +120,75 @@ class _HotelsScreenState extends State<HotelsScreen> {
                 children: [
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
-                        stream: _hotelsStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text('Something went wrong'),
-                            );
-                          }
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return !searchMode
-                              ? ListView(
-                                  children: snapshot.data!.docs.map((document) {
+                      stream: _hotelsStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Something went wrong'),
+                          );
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return !searchMode
+                            ? ListView(
+                                children: snapshot.data!.docs.map(
+                                  (document) {
                                     var data =
                                         document.data() as Map<String, dynamic>;
+
+                                    print(
+                                        'rates issssss        ${data['rates']}');
                                     return HotelCard(Hotel.fromDocuments(data));
-                                  }).toList(),
-                                  // itemBuilder: (context, i) => HotelCard(
-                                  //     searchMode
-                                  //         ? hotelsController
-                                  //             .search(searchText)![i]
-                                  //         : hotelsController.hotels[i]),
-                                  // itemCount: searchMode
-                                  //     ? hotelsController
-                                  //         .search(searchText)!
-                                  //         .length
-                                  //     : hotelsController.hotels.length,
-                                )
-                              : ListView.builder(
-                                  itemBuilder: (context, index) =>
-                                      HotelCard(searchHotels![index]),
-                                  itemCount: searchHotels!.length,
-                                );
-                        }),
+                                  },
+                                ).toList(),
+                                // itemBuilder: (context, i) => HotelCard(
+                                //     searchMode
+                                //         ? hotelsController
+                                //             .search(searchText)![i]
+                                //         : hotelsController.hotels[i]),
+                                // itemCount: searchMode
+                                //     ? hotelsController
+                                //         .search(searchText)!
+                                //         .length
+                                //     : hotelsController.hotels.length,
+                              )
+                            : ListView.builder(
+                                itemBuilder: (context, index) =>
+                                    HotelCard(searchHotels![index]),
+                                itemCount: searchHotels!.length,
+                              );
+                      },
+                    ),
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        hotelsController.addHotel(
-                          Hotel(
-                              authorEmail: authController.currentUser,
-                              id: DateTime.now().toString(),
-                              name: "faslknfas",
-                              rate: 4,
-                              phoneNumber: 4555,
-                              imageUrl: '',
-                              location: 'damas',
-                              roomsCount: 455),
-                        );
-                      },
-                      child: Text('Add hotel')),
+                    onPressed: () {
+                      // hotelsController.addHotel(
+                      //   Hotel(
+                      //       authorEmail: authController.currentUser,
+                      //       id: DateTime.now().toString(),
+                      //       name: "faslknfas",
+                      //       rates: [4],
+                      //       phoneNumber: 4555,
+                      //       imageUrl: '',
+                      //       location: 'damas',
+                      //       roomsCount: 455),
+                      // );
+                    },
+                    child: Text('Add hotel'),
+                  ),
                 ],
               ),
       ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: [
+      //     BottomNavigationBarItem(icon: Icon(Icons.all_out)),
+      //     BottomNavigationBarItem(icon: Icon(Icons.local_hotel))
+      //   ],
+      // ),
     );
   }
 }
