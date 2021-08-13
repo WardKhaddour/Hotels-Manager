@@ -10,8 +10,7 @@ class GradientIcon extends StatelessWidget {
     return ShaderMask(
       blendMode: BlendMode.srcATop,
       shaderCallback: (rect) => LinearGradient(
-        //TODO aplly half icon
-        stops: [0, 0.5, 0.5],
+        stops: [0, 0.5],
         colors: colors,
         tileMode: TileMode.repeated,
       ).createShader(rect),

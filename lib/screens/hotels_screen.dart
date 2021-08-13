@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,34 +22,26 @@ class _HotelsScreenState extends State<HotelsScreen> {
   final authController = Get.find<AuthController>();
   bool searchMode = false;
   String searchText = '';
-  // bool _isLoading = false;
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 0)).then((value) async {
-      //   setState(() {
-      //     _isLoading = true;
-      //   });
       await hotelsController.fetchHotels();
-      //   setState(() {
-      //     _isLoading = false;
-      //   });
     });
   }
 
-  void addHotel(QueryDocumentSnapshot<Map<String, dynamic>> element) {
-    hotelsController.hotels.add(Hotel.fromDocuments(element.data()));
+  void updateHotels() {
+    hotelsController.fetchHotels();
   }
 
   @override
   Widget build(BuildContext context) {
-    // final hotels = hotelsController.hotels;
     final searchHotels = hotelsController.search(searchText);
     final _hotelsStream = FirebaseFirestore.instance
         .collection('hotels')
         .snapshots(includeMetadataChanges: true);
     _hotelsStream.listen((event) {
-      event.docs.forEach(addHotel);
+      updateHotels();
     });
     return Scaffold(
       appBar: AppBar(
@@ -75,10 +68,11 @@ class _HotelsScreenState extends State<HotelsScreen> {
       ),
       drawer: Drawer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
+            Padding(
+              padding: const EdgeInsets.only(top: 16, left: 10),
               child: Container(
                 width: 250,
                 height: 250,
@@ -139,22 +133,11 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                   (document) {
                                     var data =
                                         document.data() as Map<String, dynamic>;
-
-                                    print(
-                                        'rates issssss        ${data['rates']}');
-                                    return HotelCard(Hotel.fromDocuments(data));
+                                    print(document.id);
+                                    return HotelCard(
+                                        Hotel.fromDocuments(data, document.id));
                                   },
                                 ).toList(),
-                                // itemBuilder: (context, i) => HotelCard(
-                                //     searchMode
-                                //         ? hotelsController
-                                //             .search(searchText)![i]
-                                //         : hotelsController.hotels[i]),
-                                // itemCount: searchMode
-                                //     ? hotelsController
-                                //         .search(searchText)!
-                                //         .length
-                                //     : hotelsController.hotels.length,
                               )
                             : ListView.builder(
                                 itemBuilder: (context, index) =>
@@ -164,31 +147,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
                       },
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // hotelsController.addHotel(
-                      //   Hotel(
-                      //       authorEmail: authController.currentUser,
-                      //       id: DateTime.now().toString(),
-                      //       name: "faslknfas",
-                      //       rates: [4],
-                      //       phoneNumber: 4555,
-                      //       imageUrl: '',
-                      //       location: 'damas',
-                      //       roomsCount: 455),
-                      // );
-                    },
-                    child: Text('Add hotel'),
-                  ),
                 ],
               ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   items: [
-      //     BottomNavigationBarItem(icon: Icon(Icons.all_out)),
-      //     BottomNavigationBarItem(icon: Icon(Icons.local_hotel))
-      //   ],
-      // ),
     );
   }
 }

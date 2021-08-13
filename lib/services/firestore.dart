@@ -12,19 +12,8 @@ class FirestoreService {
       fetchedHotels = [];
       for (var e in hotelsRes) {
         var hotelData = e.data() as Map<String, dynamic>;
-        fetchedHotels.add(Hotel.fromDocuments(hotelData));
+        fetchedHotels.add(Hotel.fromDocuments(hotelData, e.id));
       }
-
-      // for (var e in dataMap) {
-      //   fetchedHotels.add(Hotel(
-      //       id: e.get('id') as String,
-      //       name: e.get('name') as String,
-      //       imageUrl: e.get('imageUrl') as String,
-      //       rate: e.get('rate') as double,
-      //       phoneNumber: e.get('phoneNumber') as int,
-      //       location: e.get('location') as String,
-      //       roomsCount: e.get('roomsCount') as int));
-      // }
       return fetchedHotels;
     } on Exception catch (_) {
       return null;
@@ -32,30 +21,48 @@ class FirestoreService {
   }
 
   Future<void> addHotel(Hotel newHotel) async {
-    print('call add');
     final collection = fireStore.collection('hotels');
-    print('init collection');
     await collection.add({
       'imageUrl': newHotel.imageUrl,
       'location': newHotel.location,
       'name': newHotel.name,
       'phoneNumber': newHotel.phoneNumber,
-      'rate': newHotel.rate,
-      'roomCount': newHotel.roomsCount,
+      'rates': newHotel.rates,
+      'roomsCount': newHotel.roomsCount,
       'id': newHotel.id,
+      'roomPrice': newHotel.roomPrice.toDouble(),
+      'authorEmail': newHotel.authorEmail.toString(),
     });
-    print("finish adding");
+    await fetchHotels();
   }
-//   Future <void> updateHotel(Hotel hotel)async{
-// final document = fireStore.doc('documentPath');
-//     await document.update({
-//       'imageUrl': hotel.imageUrl,
-//       'location': hotel.location,
-//       'name': hotel.name,
-//       'phoneNumber': hotel.phoneNumber,
-//       'rate': hotel.rate,
-//       'roomCount': hotel.roomsCount,
-//       'id': hotel.id,
-//     });
-//   }
+
+  Future<void> deleteHotel(String documentId) async {
+    await fireStore.collection('hotels').doc(documentId).delete();
+  }
+
+  Future<void> takeRoom(Hotel currentHotel) async {
+    final fireStore = FirebaseFirestore.instance;
+    var emptyRooms = currentHotel.emptyRooms!;
+    emptyRooms--;
+    await fireStore
+        .collection('hotels')
+        .doc(currentHotel.documentId)
+        .update({'emptyRooms': emptyRooms});
+  }
+
+  Future<void> updateHotel(Hotel hotel, String documentId) async {
+    print('document id $documentId');
+    final document = fireStore.collection('hotels').doc(documentId);
+    await document.update({
+      'imageUrl': hotel.imageUrl,
+      'location': hotel.location,
+      'name': hotel.name,
+      'phoneNumber': hotel.phoneNumber,
+      'rates': hotel.rates,
+      'roomCount': hotel.roomsCount,
+      'id': hotel.id,
+      'roomPrice': hotel.roomPrice,
+      'authrEmail': hotel.authorEmail,
+    });
+  }
 }

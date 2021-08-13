@@ -108,7 +108,7 @@ class _LoginFormState extends State<LoginForm> {
               padding: const EdgeInsets.all(10.0),
               child: TextFormField(
                 focusNode: _emailFocusNode,
-                // autofocus: true,
+                autofocus: true,
                 controller: _emailController,
                 validator: (email) {
                   if (email!.contains('@') &&

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/auth_controller.dart';
 
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
@@ -8,6 +10,7 @@ import '../widgets/editing_text_field.dart';
 class AddHotelScreen extends StatelessWidget {
   static const routeName = '\add-hotel';
   final _hotelsController = Get.find<HotelsController>();
+  final _authController = Get.find<AuthController>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _roomsController = TextEditingController();
@@ -19,20 +22,26 @@ class AddHotelScreen extends StatelessWidget {
   final FocusNode _roomPriceFocusNode = FocusNode();
   final FocusNode _phoneNumberFocusNode = FocusNode();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  void saveHotel() {
-//TODO save hotel
-    _hotelsController.addHotel(
-      Hotel(
-        name: _nameController.text,
-        location: _locationController.text,
-        roomsCount: _roomsController.text as int,
-        id: DateTime.now().toIso8601String(),
-        imageUrl: '',
-        rates: [0],
-        roomPrice: _roomPriceController.text as double,
-        phoneNumber: _phoneNumberController.text as int,
-      ),
-    );
+  Future<void> addHotel() async {
+    try {
+      print('current user ${_authController.currentUser}');
+      await _hotelsController.addHotel(
+        Hotel(
+          authorEmail: _authController.currentUser!,
+          name: _nameController.text,
+          location: _locationController.text,
+          roomsCount: int.parse(_roomsController.text),
+          id: DateTime.now().toIso8601String(),
+          imageUrl: '',
+          rates: {},
+          roomPrice: double.parse(_roomPriceController.text),
+          phoneNumber: int.parse(_phoneNumberController.text),
+        ),
+      );
+      Get.back();
+    } on FirebaseException catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -43,7 +52,7 @@ class AddHotelScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: saveHotel,
+            onPressed: addHotel,
           ),
         ],
       ),

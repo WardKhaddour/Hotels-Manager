@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hotels_manager/widgets/gradient_icon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../widgets/editing_text_field.dart';
+import '../widgets/gradient_icon.dart';
 import '../widgets/hotel_details_item.dart';
+import '../widgets/rate_dialog.dart';
 
 class HotelDetailsScreen extends StatefulWidget {
   static const routeName = '/hotel-details';
@@ -38,11 +39,13 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
 
   void _saveForm() {
     // final isValid = _formKey.currentState!.validate();
+
     // if (!isValid) return;
     setState(() {
       _enableEditing = false;
     });
     final editiedHotel = Hotel(
+      authorEmail: _authController.currentUser ?? '',
       id: _hotelId,
       name: _nameController.text,
       location: _locationController.text,
@@ -52,15 +55,27 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
       roomsCount: int.parse(_roomsController.text),
       roomPrice: double.parse(_roomPriceController.text),
     );
-    _hotelsController.editHotel(editiedHotel);
+    _hotelsController.editHotel(editiedHotel, editiedHotel.documentId!);
   }
 
-  Widget _buildRate(double rate) {
-    print(rate);
-    return rate < 0
-        ? Text('Not Rated')
-        : Row(
-            children: <Widget>[
+  Widget _buildRate(double rate, Hotel currentHotel) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: rate < 0
+          ? <Widget>[
+              Text('Not Rated'),
+              _enableEditing
+                  ? SizedBox()
+                  : TextButton(
+                      child:
+                          Text('Rate', style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        Get.dialog(
+                          RateDialog(currentHotel: currentHotel),
+                        );
+                      }),
+            ]
+          : <Widget>[
               for (int i = 0; i < rate.toInt(); ++i)
                 Icon(
                   Icons.star,
@@ -71,13 +86,21 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                     child: Icon(
                       Icons.star,
                     ),
-                    colors: [
-                      Colors.yellowAccent,
-                      Colors.yellowAccent,
-                      Colors.white
-                    ])
+                    colors: [Colors.yellowAccent, Colors.white]),
+              _enableEditing
+                  ? SizedBox()
+                  : TextButton(
+                      child:
+                          Text('Rate', style: TextStyle(color: Colors.white)),
+                      onPressed: () {
+                        Get.dialog(
+                          RateDialog(
+                            currentHotel: currentHotel,
+                          ),
+                        );
+                      }),
             ],
-          );
+    );
   }
 
   @override
@@ -102,7 +125,9 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     _locationController.text = currentHotel.location;
     _roomsController.text = currentHotel.roomsCount.toString();
     _phoneNumberController.text = currentHotel.phoneNumber.toString();
-
+    print('author email ${currentHotel.authorEmail}');
+    print('current user ${_authController.currentUser}');
+    print('currentHotel document Id ${currentHotel.documentId}');
     return Scaffold(
       body: CustomScrollView(
         shrinkWrap: true,
@@ -111,23 +136,62 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
           SliverAppBar(
             pinned: true,
             actions: [
-              _authController.currentUser == currentHotel.authorEmail
-                  ? IconButton(
-                      icon: Icon(_enableEditing ? Icons.save : Icons.edit),
-                      onPressed: _enableEditing
-                          ? _saveForm
-                          : () {
-                              setState(() {
-                                _enableEditing = true;
-                              });
-                            },
-                    )
-                  : SizedBox()
+              if (_authController.currentUser == currentHotel.authorEmail)
+                !_enableEditing
+                    ? PopupMenuButton(
+                        itemBuilder: (context) => [
+                              PopupMenuItem(
+                                child: TextButton(
+                                  child: Text('Edit'),
+                                  onPressed: () {
+                                    Get.back();
+                                    setState(() {
+                                      _enableEditing = true;
+                                    });
+                                  },
+                                ),
+                              ),
+                              PopupMenuItem(
+                                child: TextButton(
+                                  child: Text('Delete'),
+                                  onPressed: () {
+                                    Get.back();
+                                    Get.dialog(
+                                      AlertDialog(
+                                        title: Text('Are you sure'),
+                                        content: Text('Delete hotel?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () async {
+                                              Get.back();
+                                              await _hotelsController
+                                                  .deleteHotel(
+                                                currentHotel.documentId!,
+                                              );
+                                              Get.back();
+                                            },
+                                            child: Text('Yes'),
+                                          ),
+                                          TextButton(
+                                            onPressed: Get.back,
+                                            child: Text('No'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ])
+                    : IconButton(
+                        icon: Icon(Icons.save),
+                        onPressed: _saveForm,
+                      ),
             ],
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              title: _buildRate(currentHotel.rate.toDouble()),
+              title: _buildRate(currentHotel.rate, currentHotel),
               background: Image.network(
                 currentHotel.imageUrl,
                 fit: BoxFit.cover,

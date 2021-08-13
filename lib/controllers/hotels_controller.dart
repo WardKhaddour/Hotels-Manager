@@ -9,60 +9,21 @@ import '../services/firestore.dart';
 class HotelsController extends GetxController {
   RxList<Hotel> hotels = <Hotel>[].obs;
   RxBool isLoading = false.obs;
-  // @override
-  // void onInit() async {
-  //   super.onInit();
-  //   print("init controller");
-  //   final firestore = FirestoreService();
-  //   isLoading.toggle();
-  //   print('loading before fitchung $isLoading');
-  //   final fetchedHotels = await FirestoreService().fetchHotels();
-  //   hotels.value += fetchedHotels!;
-  //   print('hotels $hotels');
-  //    hotels = await firestore.fetchHotels() ?? [];
-  //   isLoading.toggle();
-  //   print('loading after fitchung $isLoading');
-  //   print("finish fitching");
-  // }
 
-  // RxList<Hotel> hotels = [
-  //   Hotel(
-  //       name: 'LaMera',
-  //       // location: Location(21.0542, 25.454252),
-  //       location: 'lattakia ',
-  //       roomsCount: 500,
-  //       id: '54445kjgjh',
-  //       imageUrl: url,
-  //       rate: 4.0,
-  //       phoneNumber: 0000),
-  //   Hotel(
-  //       name: 'A7a',
-  //       // location: Location(21.0542, 25.454252),
-  //       location: 'lattakia ',
-  //       roomsCount: 500,
-  //       id: '34445kjgjh',
-  //       imageUrl: url,
-  //       rate: 2.0,
-  //       phoneNumber: 00900)
-  // ].obs;
-  // Future<void>? fetchHotels() async {
-  //   print('length before fetch ${hotels.length}');
-  //   final fetchedHotels = await FirestoreService().fetchHotels();
-  //   hotels.value += fetchedHotels!;
-
-  //   print('length after fetch ${hotels.length}');
-  // }
   Future<void>? fetchHotels() async {
-    print("init controller");
-    // final firestore = FirestoreService();
-    // isLoading.toggle();
-    print('loading before fitchung $isLoading');
     final fetchedHotels = await FirestoreService().fetchHotels();
-    hotels.value += fetchedHotels!;
-    print('hotels $hotels'); // hotels = await firestore.fetchHotels() ?? [];
-    // isLoading.toggle();
-    print('loading after fitchung $isLoading');
-    print("finish fitching");
+    hotels.value = fetchedHotels!;
+  }
+
+  Future<void> rateHotel(
+      Hotel currentHotel, String currentUser, int rate) async {
+    final fireStore = FirebaseFirestore.instance;
+    final newRates = currentHotel.rates;
+    newRates[currentUser] = rate;
+    await fireStore
+        .collection('hotels')
+        .doc(currentHotel.documentId)
+        .update({'rates': newRates});
   }
 
   Future<void> addHotel(Hotel hotel) async {
@@ -81,33 +42,21 @@ class HotelsController extends GetxController {
         .toList();
   }
 
-  Future<void> editHotel(Hotel hotel) async {
-    final hotelIndex = hotels.indexWhere((element) => element.id == hotel.id);
-    if (hotelIndex >= 0) {
-      hotels[hotelIndex] = hotel;
-    }
+  Future<void> editHotel(Hotel hotel, String documentId) async {
+    print("edit hotel");
+    await FirestoreService().updateHotel(hotel, documentId);
+    print('finish update');
+  }
+
+  Future<void> deleteHotel(String documentId) async {
+    await FirestoreService().deleteHotel(documentId);
+  }
+
+  Future<void> takeRoom(Hotel currentHotel) async {
+    await FirestoreService().takeRoom(currentHotel);
   }
 
   Hotel findById(String id) {
     return hotels.firstWhere((hotel) => hotel.id == id);
   }
-  // Hotel findById(String id) {
-  //   var currentHotel = Hotel(
-  //       name: "name",
-  //       location: "location",
-  //       roomsCount: 0,
-  //       id: "id",
-  //       imageUrl: "imageUrl",
-  //       rate: 0.0,
-  //       phoneNumber: 555);
-  //   print(hotels.length);
-  //   for (var hotel in hotels) {
-  //     if (hotel.id == id) {
-  //       print('equals');
-  //       currentHotel = hotel;
-  //       break;
-  //     }
-  //   }
-  //   return currentHotel;
-  // }
 }
