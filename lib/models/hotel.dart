@@ -6,7 +6,7 @@ class Hotel {
   final String imageUrl;
   final Map<String, int> rates;
   final int phoneNumber;
-  int? emptyRooms = 0;
+  int emptyRooms = 0;
   final double roomPrice;
   final String authorEmail;
   String? documentId;
@@ -48,6 +48,6 @@ class Hotel {
     required this.roomPrice,
     required this.authorEmail,
     this.documentId,
-    this.emptyRooms,
+    required this.emptyRooms,
   });
 }

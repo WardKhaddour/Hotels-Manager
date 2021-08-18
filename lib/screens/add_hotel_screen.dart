@@ -24,10 +24,10 @@ class AddHotelScreen extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Future<void> addHotel() async {
     try {
-      print('current user ${_authController.currentUser}');
       await _hotelsController.addHotel(
         Hotel(
-          authorEmail: _authController.currentUser!,
+          emptyRooms: int.parse(_roomsController.text),
+          authorEmail: _authController.currentUser,
           name: _nameController.text,
           location: _locationController.text,
           roomsCount: int.parse(_roomsController.text),

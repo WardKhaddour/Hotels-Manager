@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/hotel_card.dart';
-import './add_hotel_screen.dart';
-import './login_screen.dart';
 
 class HotelsScreen extends StatefulWidget {
   static const String routeName = '/hotels-screen';
@@ -66,52 +65,51 @@ class _HotelsScreenState extends State<HotelsScreen> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 16, left: 10),
-              child: Container(
-                width: 250,
-                height: 250,
-                child: Image.asset(
-                  'assets/images/tasqment-logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                leading: Icon(Icons.add),
-                title: Text('Add Hotel'),
-                onTap: () {
-                  Get.toNamed(AddHotelScreen.routeName);
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                leading: Icon(Icons.logout),
-                title: Text('Log Out'),
-                onTap: () {
-                  authController.logout();
-                  Get.offNamed(LogInScreen.routeName);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+      drawer: AppDrawer(),
       body: Obx(
         () => hotelsController.isLoading.value
             ? Center(child: CircularProgressIndicator())
             : Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Row(
+                    children: [
+                      // DropdownButton<String>(
+                      //   value: 'sort',
+                      //   onTap: () => print('pressed'),
+                      //   items: [
+                      //     DropdownMenuItem(
+                      //       onTap: () =>
+                      //           hotelsController.sortHotels(sortType.Name),
+                      //       child: Text(
+                      //         describeEnum(sortType.Name),
+                      //       ),
+                      //     ),
+                      //     DropdownMenuItem(
+                      //       onTap: () =>
+                      //           hotelsController.sortHotels(sortType.Location),
+                      //       child: Text(
+                      //         describeEnum(sortType.Location),
+                      //       ),
+                      //     ),
+                      //     DropdownMenuItem(
+                      //       onTap: () =>
+                      //           hotelsController.sortHotels(sortType.RoomPrice),
+                      //       child: Text(
+                      //         describeEnum(sortType.RoomPrice),
+                      //       ),
+                      //     ),
+                      //     DropdownMenuItem(
+                      //       onTap: () => hotelsController
+                      //           .sortHotels(sortType.EmptyRooms),
+                      //       child: Text(
+                      //         describeEnum(sortType.EmptyRooms),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    ],
+                  ),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
                       stream: _hotelsStream,
@@ -133,7 +131,6 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                   (document) {
                                     var data =
                                         document.data() as Map<String, dynamic>;
-                                    print(document.id);
                                     return HotelCard(
                                         Hotel.fromDocuments(data, document.id));
                                   },

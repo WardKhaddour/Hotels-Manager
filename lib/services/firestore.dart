@@ -32,6 +32,7 @@ class FirestoreService {
       'id': newHotel.id,
       'roomPrice': newHotel.roomPrice.toDouble(),
       'authorEmail': newHotel.authorEmail.toString(),
+      'emptyRooms': newHotel.roomsCount.toInt(),
     });
     await fetchHotels();
   }
@@ -42,7 +43,7 @@ class FirestoreService {
 
   Future<void> takeRoom(Hotel currentHotel) async {
     final fireStore = FirebaseFirestore.instance;
-    var emptyRooms = currentHotel.emptyRooms!;
+    var emptyRooms = currentHotel.emptyRooms;
     emptyRooms--;
     await fireStore
         .collection('hotels')
@@ -51,7 +52,6 @@ class FirestoreService {
   }
 
   Future<void> updateHotel(Hotel hotel, String documentId) async {
-    print('document id $documentId');
     final document = fireStore.collection('hotels').doc(documentId);
     await document.update({
       'imageUrl': hotel.imageUrl,
@@ -59,10 +59,11 @@ class FirestoreService {
       'name': hotel.name,
       'phoneNumber': hotel.phoneNumber,
       'rates': hotel.rates,
-      'roomCount': hotel.roomsCount,
+      'roomsCount': hotel.roomsCount,
       'id': hotel.id,
       'roomPrice': hotel.roomPrice,
-      'authrEmail': hotel.authorEmail,
+      'authorEmail': hotel.authorEmail,
+      'emptyRooms': hotel.emptyRooms,
     });
   }
 }

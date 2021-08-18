@@ -18,7 +18,13 @@ class _RateDialogState extends State<RateDialog> {
   final hotelsController = Get.find<HotelsController>();
   Future<void> addRate() async {
     hotelsController.rateHotel(
-        widget.currentHotel, authController.currentUser!, rate);
+        widget.currentHotel, authController.currentUser, rate);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    rate = widget.currentHotel.rates[authController.currentUser] ?? 0;
   }
 
   @override

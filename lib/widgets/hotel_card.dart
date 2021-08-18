@@ -13,45 +13,50 @@ class HotelCard extends StatelessWidget {
   HotelCard(this.hotel);
   @override
   Widget build(BuildContext context) {
-    print('user ${_authController.currentUser}');
-    print('hotel ${hotel.authorEmail}');
     return GestureDetector(
       onTap: () {
-        Get.toNamed(HotelDetailsScreen.routeName, arguments: {'id': hotel.id});
+        Get.toNamed(HotelDetailsScreen.routeName, arguments: {'hotel': hotel});
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Card(
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(hotel.imageUrl),
-            ),
-            title: Text(hotel.name),
-            trailing: hotel.rate < 0
-                ? Text('Not Rated')
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(hotel.rate.toStringAsFixed(1)),
-                      SizedBox(
-                        width: 10,
+          clipBehavior: Clip.hardEdge,
+          child: Column(
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(hotel.imageUrl),
+                ),
+                title: Text(hotel.name),
+                trailing: hotel.rate < 0
+                    ? Text('Not Rated')
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(hotel.rate.toStringAsFixed(1)),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.star),
+                        ],
                       ),
-                      Icon(Icons.star),
-                    ],
-                  ),
-            subtitle: hotel.authorEmail == _authController.currentUser
-                ? TextButton(
-                    onPressed: () {
-                      //TODO take room
-                      _hotelsController.takeRoom(hotel);
-                    },
-                    child: Text(
-                      'Take Room',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-                : SizedBox(),
+              ),
+              hotel.authorEmail == _authController.currentUser
+                  ? TextButton(
+                      style: ButtonStyle(alignment: Alignment.centerLeft),
+                      onPressed: () {
+                        //TODO take room
+                        _hotelsController.takeRoom(hotel);
+                      },
+                      child: Text(
+                        'Take Room',
+                        style: TextStyle(color: Colors.white),
+                        textAlign: TextAlign.left,
+                      ),
+                    )
+                  : SizedBox(),
+            ],
           ),
         ),
       ),

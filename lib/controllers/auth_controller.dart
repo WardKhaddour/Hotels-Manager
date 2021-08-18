@@ -8,7 +8,7 @@ class AuthController extends GetxService {
   final _auth = AuthService();
   final isLoggedIn = false.obs;
   bool keepRefresh = true;
-  String? currentUser;
+  String currentUser = '';
   @override
   void onInit() async {
     final _auth = FirebaseAuth.instance;

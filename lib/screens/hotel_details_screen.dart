@@ -33,8 +33,8 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   final _hotelsController = Get.find<HotelsController>();
   final _authController = Get.find<AuthController>();
 
-  final String _hotelId =
-      Get.arguments != null ? Get.arguments['id'] as String : '';
+  final Hotel? currentHotel =
+      Get.arguments != null ? Get.arguments['hotel'] as Hotel : null;
   bool _enableEditing = false;
 
   void _saveForm() {
@@ -45,25 +45,30 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
       _enableEditing = false;
     });
     final editiedHotel = Hotel(
-      authorEmail: _authController.currentUser ?? '',
-      id: _hotelId,
+      emptyRooms: int.parse(_roomsController.text),
+      authorEmail: _authController.currentUser,
+      id: currentHotel!.id,
       name: _nameController.text,
       location: _locationController.text,
       phoneNumber: int.parse(_phoneNumberController.text),
-      imageUrl: _hotelsController.findById(_hotelId).imageUrl,
-      rates: _hotelsController.findById(_hotelId).rates,
+      imageUrl: currentHotel!.imageUrl,
+      rates: currentHotel!.rates,
       roomsCount: int.parse(_roomsController.text),
       roomPrice: double.parse(_roomPriceController.text),
     );
-    _hotelsController.editHotel(editiedHotel, editiedHotel.documentId!);
+    print('${editiedHotel.imageUrl}dadas');
+    print(editiedHotel.rates);
+    _hotelsController.editHotel(editiedHotel, currentHotel!.documentId!);
   }
 
   Widget _buildRate(double rate, Hotel currentHotel) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: rate < 0
           ? <Widget>[
-              Text('Not Rated'),
+              Row(children: [
+                Text('Not Rated'),
+              ]),
               _enableEditing
                   ? SizedBox()
                   : TextButton(
@@ -76,17 +81,19 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                       }),
             ]
           : <Widget>[
-              for (int i = 0; i < rate.toInt(); ++i)
-                Icon(
-                  Icons.star,
-                  color: Colors.yellowAccent,
-                ),
-              if (rate.toInt() != rate)
-                GradientIcon(
-                    child: Icon(
-                      Icons.star,
-                    ),
-                    colors: [Colors.yellowAccent, Colors.white]),
+              Row(children: [
+                for (int i = 0; i < rate.toInt(); ++i)
+                  Icon(
+                    Icons.star,
+                    color: Colors.yellowAccent,
+                  ),
+                if (rate.toInt() != rate)
+                  GradientIcon(
+                      child: Icon(
+                        Icons.star,
+                      ),
+                      colors: [Colors.yellowAccent, Colors.white]),
+              ]),
               _enableEditing
                   ? SizedBox()
                   : TextButton(
@@ -101,6 +108,12 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                       }),
             ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (currentHotel == null) Get.back();
   }
 
   @override
@@ -120,14 +133,11 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentHotel = _hotelsController.findById(_hotelId);
-    _nameController.text = currentHotel.name;
-    _locationController.text = currentHotel.location;
-    _roomsController.text = currentHotel.roomsCount.toString();
-    _phoneNumberController.text = currentHotel.phoneNumber.toString();
-    print('author email ${currentHotel.authorEmail}');
-    print('current user ${_authController.currentUser}');
-    print('currentHotel document Id ${currentHotel.documentId}');
+    // final currentHotel = _hotelsController.findById(_hotelId);
+    _nameController.text = currentHotel!.name;
+    _locationController.text = currentHotel!.location;
+    _roomsController.text = currentHotel!.roomsCount.toString();
+    _phoneNumberController.text = currentHotel!.phoneNumber.toString();
     return Scaffold(
       body: CustomScrollView(
         shrinkWrap: true,
@@ -136,7 +146,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
           SliverAppBar(
             pinned: true,
             actions: [
-              if (_authController.currentUser == currentHotel.authorEmail)
+              if (_authController.currentUser == currentHotel!.authorEmail)
                 !_enableEditing
                     ? PopupMenuButton(
                         itemBuilder: (context) => [
@@ -166,7 +176,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                                               Get.back();
                                               await _hotelsController
                                                   .deleteHotel(
-                                                currentHotel.documentId!,
+                                                currentHotel!.documentId!,
                                               );
                                               Get.back();
                                             },
@@ -191,9 +201,9 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              title: _buildRate(currentHotel.rate, currentHotel),
+              title: _buildRate(currentHotel!.rate, currentHotel!),
               background: Image.network(
-                currentHotel.imageUrl,
+                currentHotel!.imageUrl,
                 fit: BoxFit.cover,
               ),
             ),
@@ -278,25 +288,26 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                   Column(
                     children: <Widget>[
                       HotelDetailsItem(
-                        leadingText: currentHotel.name,
+                        leadingText: currentHotel!.name,
                         trailing: Icon(Icons.hotel),
                       ),
                       HotelDetailsItem(
-                        leadingText: currentHotel.location,
+                        leadingText: currentHotel!.location,
                         trailing: Icon(Icons.location_on),
                       ),
                       HotelDetailsItem(
-                        leadingText: '${currentHotel.roomsCount} Rooms',
+                        leadingText: '${currentHotel!.roomsCount} Rooms',
                         trailing: Icon(Icons.meeting_room),
                       ),
                       HotelDetailsItem(
-                        leadingText: '${currentHotel.phoneNumber}',
+                        leadingText: '${currentHotel!.phoneNumber}',
                         trailing: IconButton(
                           icon: Icon(Icons.phone),
                           onPressed: () async {
                             if (await canLaunch(
-                                "tel://${currentHotel.phoneNumber}")) {
-                              await launch("tel://${currentHotel.phoneNumber}");
+                                "tel://${currentHotel!.phoneNumber}")) {
+                              await launch(
+                                  "tel://${currentHotel!.phoneNumber}");
                             } else {
                               print('Cannot make call');
                             }
