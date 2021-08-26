@@ -6,9 +6,9 @@ import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../widgets/editing_text_field.dart';
-import '../widgets/gradient_icon.dart';
 import '../widgets/hotel_details_item.dart';
-import '../widgets/rate_dialog.dart';
+import '../widgets/hotel_image.dart';
+import '../widgets/hotel_rate.dart';
 
 class HotelDetailsScreen extends StatefulWidget {
   static const routeName = '/hotel-details';
@@ -59,55 +59,6 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     print('${editiedHotel.imageUrl}dadas');
     print(editiedHotel.rates);
     _hotelsController.editHotel(editiedHotel, currentHotel!.documentId!);
-  }
-
-  Widget _buildRate(double rate, Hotel currentHotel) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: rate < 0
-          ? <Widget>[
-              Row(children: [
-                Text('Not Rated'),
-              ]),
-              _enableEditing
-                  ? SizedBox()
-                  : TextButton(
-                      child:
-                          Text('Rate', style: TextStyle(color: Colors.white)),
-                      onPressed: () {
-                        Get.dialog(
-                          RateDialog(currentHotel: currentHotel),
-                        );
-                      }),
-            ]
-          : <Widget>[
-              Row(children: [
-                for (int i = 0; i < rate.toInt(); ++i)
-                  Icon(
-                    Icons.star,
-                    color: Colors.yellowAccent,
-                  ),
-                if (rate.toInt() != rate)
-                  GradientIcon(
-                      child: Icon(
-                        Icons.star,
-                      ),
-                      colors: [Colors.yellowAccent, Colors.white]),
-              ]),
-              _enableEditing
-                  ? SizedBox()
-                  : TextButton(
-                      child:
-                          Text('Rate', style: TextStyle(color: Colors.white)),
-                      onPressed: () {
-                        Get.dialog(
-                          RateDialog(
-                            currentHotel: currentHotel,
-                          ),
-                        );
-                      }),
-            ],
-    );
   }
 
   @override
@@ -201,10 +152,14 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
             expandedHeight: 250,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              title: _buildRate(currentHotel!.rate, currentHotel!),
-              background: Image.network(
-                currentHotel!.imageUrl,
-                fit: BoxFit.cover,
+              title: HotelRate(
+                rate: currentHotel!.rate,
+                currentHotel: currentHotel!,
+                enableEditing: _enableEditing,
+              ),
+              background: HotelImage(
+                imageUrl: currentHotel!.imageUrl,
+                // fit: BoxFit.cover,
               ),
             ),
           ),
@@ -298,6 +253,10 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                       HotelDetailsItem(
                         leadingText: '${currentHotel!.roomsCount} Rooms',
                         trailing: Icon(Icons.meeting_room),
+                      ),
+                      HotelDetailsItem(
+                        leadingText: '${currentHotel!.roomPrice} \$',
+                        trailing: Icon(Icons.attach_money_outlined),
                       ),
                       HotelDetailsItem(
                         leadingText: '${currentHotel!.phoneNumber}',

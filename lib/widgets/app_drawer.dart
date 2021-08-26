@@ -15,7 +15,7 @@ class AppDrawer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 4,
+            flex: 5,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -34,7 +34,7 @@ class AppDrawer extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(16.0),
               child: ListTile(
                 leading: Icon(Icons.add),
                 title: Text('Add Hotel'),
@@ -47,7 +47,7 @@ class AppDrawer extends StatelessWidget {
           Expanded(
             flex: 1,
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(16.0),
               child: ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Log Out'),
@@ -58,6 +58,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
+          Expanded(flex: 2, child: SizedBox())
         ],
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +7,7 @@ import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/hotel_card.dart';
+import '../widgets/sort_type_dropdown.dart';
 
 class HotelsScreen extends StatefulWidget {
   static const String routeName = '/hotels-screen';
@@ -66,86 +66,54 @@ class _HotelsScreenState extends State<HotelsScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: Obx(
-        () => hotelsController.isLoading.value
-            ? Center(child: CircularProgressIndicator())
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      // DropdownButton<String>(
-                      //   value: 'sort',
-                      //   onTap: () => print('pressed'),
-                      //   items: [
-                      //     DropdownMenuItem(
-                      //       onTap: () =>
-                      //           hotelsController.sortHotels(sortType.Name),
-                      //       child: Text(
-                      //         describeEnum(sortType.Name),
-                      //       ),
-                      //     ),
-                      //     DropdownMenuItem(
-                      //       onTap: () =>
-                      //           hotelsController.sortHotels(sortType.Location),
-                      //       child: Text(
-                      //         describeEnum(sortType.Location),
-                      //       ),
-                      //     ),
-                      //     DropdownMenuItem(
-                      //       onTap: () =>
-                      //           hotelsController.sortHotels(sortType.RoomPrice),
-                      //       child: Text(
-                      //         describeEnum(sortType.RoomPrice),
-                      //       ),
-                      //     ),
-                      //     DropdownMenuItem(
-                      //       onTap: () => hotelsController
-                      //           .sortHotels(sortType.EmptyRooms),
-                      //       child: Text(
-                      //         describeEnum(sortType.EmptyRooms),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                    ],
-                  ),
-                  Expanded(
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream: _hotelsStream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text('Something went wrong'),
-                          );
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return !searchMode
-                            ? ListView(
-                                children: snapshot.data!.docs.map(
-                                  (document) {
-                                    var data =
-                                        document.data() as Map<String, dynamic>;
-                                    return HotelCard(
-                                        Hotel.fromDocuments(data, document.id));
-                                  },
-                                ).toList(),
-                              )
-                            : ListView.builder(
-                                itemBuilder: (context, index) =>
-                                    HotelCard(searchHotels![index]),
-                                itemCount: searchHotels!.length,
-                              );
-                      },
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await hotelsController.fetchHotels();
+        },
+        child: Obx(
+          () => hotelsController.isLoading.value
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SortTypeDropdown(),
+                    Expanded(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: _hotelsStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Something went wrong'),
+                            );
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return !searchMode
+                              ? ListView(
+                                  children: snapshot.data!.docs.map(
+                                    (document) {
+                                      var data = document.data()
+                                          as Map<String, dynamic>;
+                                      return HotelCard(Hotel.fromDocuments(
+                                          data, document.id));
+                                    },
+                                  ).toList(),
+                                )
+                              : ListView.builder(
+                                  itemBuilder: (context, index) =>
+                                      HotelCard(searchHotels![index]),
+                                  itemCount: searchHotels!.length,
+                                );
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+        ),
       ),
     );
   }

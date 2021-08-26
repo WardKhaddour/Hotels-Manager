@@ -5,6 +5,7 @@ import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../screens/hotel_details_screen.dart';
+import 'hotel_image.dart';
 
 class HotelCard extends StatelessWidget {
   final Hotel hotel;
@@ -24,8 +25,11 @@ class HotelCard extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(hotel.imageUrl),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.0),
+                  child: HotelImage(
+                    imageUrl: hotel.imageUrl,
+                  ),
                 ),
                 title: Text(hotel.name),
                 trailing: hotel.rate < 0
