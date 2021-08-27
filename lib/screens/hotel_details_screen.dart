@@ -88,6 +88,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     _nameController.text = currentHotel!.name;
     _locationController.text = currentHotel!.location;
     _roomsController.text = currentHotel!.roomsCount.toString();
+    _roomPriceController.text = currentHotel!.roomPrice.toString();
     _phoneNumberController.text = currentHotel!.phoneNumber.toString();
     return Scaffold(
       body: CustomScrollView(

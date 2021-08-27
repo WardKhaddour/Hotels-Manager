@@ -74,9 +74,10 @@ class _HotelsScreenState extends State<HotelsScreen> {
           () => hotelsController.isLoading.value
               ? Center(child: CircularProgressIndicator())
               : Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SortTypeDropdown(),
+                    if (!searchMode) SortTypeDropdown(),
                     Expanded(
                       child: StreamBuilder<QuerySnapshot>(
                         stream: _hotelsStream,
