@@ -7,6 +7,7 @@ class HotelImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FadeInImage(
+      fit: BoxFit.cover,
       placeholder: AssetImage(
         'assets/images/hotel.png',
       ),

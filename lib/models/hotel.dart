@@ -37,6 +37,11 @@ class Hotel {
     return sum / rates.length;
   }
 
+  @override
+  String toString() {
+    return 'name $name , loc $location';
+  }
+
   Hotel({
     required this.name,
     required this.location,

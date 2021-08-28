@@ -26,7 +26,7 @@ class HotelCard extends StatelessWidget {
             children: [
               ListTile(
                 leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0),
+                  borderRadius: BorderRadius.circular(90.0),
                   child: HotelImage(
                     imageUrl: hotel.imageUrl,
                   ),
@@ -46,7 +46,7 @@ class HotelCard extends StatelessWidget {
                         ],
                       ),
               ),
-              hotel.authorEmail == _authController.currentUser
+              hotel.authorEmail != _authController.currentUser
                   ? TextButton(
                       style: ButtonStyle(alignment: Alignment.centerLeft),
                       onPressed: () {

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+
 import '../models/hotel.dart';
 import '../services/firestore.dart';
+import 'auth_controller.dart';
 
 enum sortType {
   Name,
@@ -15,6 +17,7 @@ enum sortType {
 class HotelsController extends GetxController {
   RxList<Hotel> hotels = <Hotel>[].obs;
   RxBool isLoading = false.obs;
+  final authController = Get.find<AuthController>();
   void sortHotels(sortType sortBy) {
     switch (sortBy) {
       case sortType.Name:
@@ -30,12 +33,19 @@ class HotelsController extends GetxController {
         hotels.sort((a, b) => a.emptyRooms.compareTo(b.emptyRooms));
         break;
     }
+    hotels.forEach(print);
+  }
+
+  List<Hotel> get myHotels {
+    return hotels
+        .where((hotel) => hotel.authorEmail == authController.currentUser)
+        .toList();
   }
 
   Future<void>? fetchHotels() async {
     final fetchedHotels = await FirestoreService().fetchHotels();
     hotels.value = fetchedHotels!;
-    hotels.sort((a, b) => a.roomPrice.compareTo(b.roomPrice));
+    // hotels.sort((a, b) => a.roomPrice.compareTo(b.roomPrice));
   }
 
   Future<void> rateHotel(

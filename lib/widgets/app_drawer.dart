@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+
 import '../controllers/auth_controller.dart';
 import '../screens/add_hotel_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/my_hotels_screen.dart';
+import 'drawer_item.dart';
 
 class AppDrawer extends StatelessWidget {
   final _authController = Get.find<AuthController>();
@@ -15,7 +19,7 @@ class AppDrawer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 5,
+            flex: 6,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -31,34 +35,33 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           SizedBox(height: 50),
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListTile(
-                leading: Icon(Icons.add),
-                title: Text('Add Hotel'),
-                onTap: () {
-                  Get.toNamed(AddHotelScreen.routeName);
-                },
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListTile(
-                leading: Icon(Icons.logout),
-                title: Text('Log Out'),
-                onTap: () {
-                  _authController.logout();
-                  Get.offNamed(LogInScreen.routeName);
-                },
-              ),
-            ),
-          ),
-          Expanded(flex: 2, child: SizedBox())
+          DrawerItem(
+              onTap: () {
+                Get.back();
+                Get.toNamed(AddHotelScreen.routeName);
+              },
+              title: 'Add Hotel',
+              icon: Icons.add),
+          DrawerItem(
+              onTap: () {
+                Get.back();
+
+                Get.toNamed(MyHotelsScreen.routeName);
+              },
+              title: 'My Hotels',
+              icon: Icons.my_library_books),
+          DrawerItem(
+              onTap: () {
+                _authController.logout();
+                Get.offNamed(LogInScreen.routeName);
+              },
+              title: 'Log Out',
+              icon: Icons.logout),
+          DrawerItem(
+              onTap: SystemNavigator.pop,
+              title: 'Exit',
+              icon: Icons.exit_to_app),
+          // Expanded(flex: 2, child: SizedBox())
         ],
       ),
     );

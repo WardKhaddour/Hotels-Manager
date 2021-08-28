@@ -10,6 +10,7 @@ import './screens/welcome_screen.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/hotels_controller.dart';
 import 'screens/add_hotel_screen.dart';
+import 'screens/my_hotels_screen.dart';
 
 Future<void> main() async {
   Get.lazyPut(() => AuthController());
@@ -49,6 +50,7 @@ class HotelsManager extends StatelessWidget {
         HotelsScreen.routeName: (ctx) => HotelsScreen(),
         HotelDetailsScreen.routeName: (ctx) => HotelDetailsScreen(),
         AddHotelScreen.routeName: (ctx) => AddHotelScreen(),
+        MyHotelsScreen.routeName: (ctx) => MyHotelsScreen(),
       },
     );
   }
