@@ -1,11 +1,12 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
+import '../models/hotel.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/hotel_card.dart';
+import '../widgets/sort_dropdown.dart';
 
 class HotelsScreen extends StatefulWidget {
   static const String routeName = '/hotels-screen';
@@ -20,6 +21,8 @@ class _HotelsScreenState extends State<HotelsScreen> {
   bool searchMode = false;
   String searchText = '';
   String title = 'Sort';
+  Map<String, List<Hotel>> hotelsByLocation = {};
+
   @override
   void initState() {
     super.initState();
@@ -28,18 +31,16 @@ class _HotelsScreenState extends State<HotelsScreen> {
     });
   }
 
-  void updateHotels() {
-    hotelsController.fetchHotels();
-  }
-
   @override
   Widget build(BuildContext context) {
     final searchHotels = hotelsController.search(searchText);
+    hotelsByLocation = hotelsController.hotelsByLocation;
+
     // final _hotelsStream = FirebaseFirestore.instance
     //     .collection('hotels')
-    //     .snapshots(includeMetadataChanges: true);
+    //     .snapshots(includeMetadataChanges: false);
     // _hotelsStream.listen((event) {
-    //   updateHotels();
+    //   // hotelsController.fetchHotels();
     // });
     return Scaffold(
       appBar: AppBar(
@@ -55,7 +56,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
             : Text('Hotels'),
         actions: [
           IconButton(
-            icon: Icon(searchMode ? Icons.arrow_forward : Icons.search),
+            icon: Icon(searchMode ? Icons.close : Icons.search),
             onPressed: () {
               setState(() {
                 searchMode = !searchMode;
@@ -76,57 +77,7 @@ class _HotelsScreenState extends State<HotelsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                      if (!searchMode)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Sort Hotels'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: DropdownButton<String>(
-                                  onChanged: (value) {
-                                    setState(() {
-                                      title = value!;
-                                      // hotelsController.sortHotels(e);
-                                    });
-                                  },
-                                  hint: Text(title),
-                                  items: sortType.values
-                                      .map<DropdownMenuItem<String>>(
-                                        (e) => DropdownMenuItem<String>(
-                                          value: describeEnum(e),
-                                          onTap: () {
-                                            print('tapped');
-                                            hotelsController.sortHotels(e);
-                                          },
-                                          // child: TextButton(
-                                          //   onPressed: () {
-                                          //     setState(() {
-                                          //       // title = describeEnum(e);
-                                          //       // isExpand = false;
-                                          //     });
-                                          //     hotelsController.sortHotels(e);
-                                          //   },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              describeEnum(e),
-                                            ),
-                                          ),
-                                        ),
-                                        // ),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      if (!searchMode) SortDropdown(),
                       Expanded(
                           // child: StreamBuilder<QuerySnapshot>(
                           //   stream: _hotelsStream,
@@ -153,9 +104,29 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                   //     },
                                   //   ).toList(),
                                   // )
-                                  children: hotelsController.hotels
-                                      .map((element) => HotelCard(element))
-                                      .toList(),
+                                  children: [
+                                    for (var key in hotelsByLocation.keys)
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              key,
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          Column(
+                                            children: hotelsByLocation[key]!
+                                                .map((e) => HotelCard(e))
+                                                .toList(),
+                                          )
+                                        ],
+                                      ),
+                                  ],
                                 )
                               : ListView.builder(
                                   itemBuilder: (context, index) =>

@@ -34,7 +34,7 @@ class FirestoreService {
       'authorEmail': newHotel.authorEmail.toString(),
       'emptyRooms': newHotel.roomsCount.toInt(),
     });
-    await fetchHotels();
+    // await fetchHotels();
   }
 
   Future<void> deleteHotel(String documentId) async {

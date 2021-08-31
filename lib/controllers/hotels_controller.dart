@@ -45,25 +45,34 @@ class HotelsController extends GetxController {
   Future<void>? fetchHotels() async {
     final fetchedHotels = await FirestoreService().fetchHotels();
     hotels.value = fetchedHotels!;
+
     // hotels.sort((a, b) => a.roomPrice.compareTo(b.roomPrice));
   }
 
   Future<void> rateHotel(
       Hotel currentHotel, String currentUser, int rate) async {
-    final fireStore = FirebaseFirestore.instance;
-    final newRates = currentHotel.rates;
-    newRates[currentUser] = rate;
-    await fireStore
-        .collection('hotels')
-        .doc(currentHotel.documentId)
-        .update({'rates': newRates});
+    try {
+      final fireStore = FirebaseFirestore.instance;
+      final newRates = currentHotel.rates;
+      newRates[currentUser] = rate;
+      await fireStore
+          .collection('hotels')
+          .doc(currentHotel.documentId)
+          .update({'rates': newRates});
+      await fetchHotels();
+    } on Exception catch (e) {
+      Get.snackbar("An error Ocuured", e.toString());
+    }
   }
 
   Future<void> addHotel(Hotel hotel) async {
     try {
+      isLoading = true.obs;
       await FirestoreService().addHotel(hotel);
+      await fetchHotels();
+      isLoading = false.obs;
     } on FirebaseException catch (e) {
-      print(e);
+      Get.snackbar("An error Ocuured", e.toString());
     }
   }
 
@@ -76,18 +85,54 @@ class HotelsController extends GetxController {
   }
 
   Future<void> editHotel(Hotel hotel, String documentId) async {
-    await FirestoreService().updateHotel(hotel, documentId);
+    try {
+      await FirestoreService().updateHotel(hotel, documentId);
+      await fetchHotels();
+    } on Exception catch (e) {
+      Get.snackbar("An error Ocuured", e.toString());
+    }
   }
 
   Future<void> deleteHotel(String documentId) async {
-    await FirestoreService().deleteHotel(documentId);
+    // isLoading = true.obs;
+    try {
+      await FirestoreService().deleteHotel(documentId);
+      await fetchHotels();
+    } on Exception catch (e) {
+      Get.snackbar("An error Ocuured", e.toString());
+    }
+
+    // isLoading = false.obs;
   }
 
   Future<void> takeRoom(Hotel currentHotel) async {
-    await FirestoreService().takeRoom(currentHotel);
+    try {
+      await FirestoreService().takeRoom(currentHotel);
+      await fetchHotels();
+    } on Exception catch (e) {
+      Get.snackbar("An error Ocuured", e.toString());
+    }
   }
 
   Hotel findById(String id) {
     return hotels.firstWhere((hotel) => hotel.id == id);
+  }
+
+  Set<String> get hotelsLocations {
+    var temp = <String>{};
+    for (var hotel in hotels) {
+      temp.add(hotel.location);
+    }
+    print(temp);
+    return temp;
+  }
+
+  Map<String, List<Hotel>> get hotelsByLocation {
+    var temp = <String, List<Hotel>>{};
+    for (var location in hotelsLocations) {
+      temp[location] =
+          hotels.where((hotel) => hotel.location == location).toList();
+    }
+    return temp;
   }
 }

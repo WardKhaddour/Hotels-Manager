@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
+import '../widgets/delete_hotel_dialog.dart';
 import '../widgets/editing_text_field.dart';
 import '../widgets/hotel_details_item.dart';
 import '../widgets/hotel_image.dart';
@@ -91,196 +92,183 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     _roomPriceController.text = currentHotel!.roomPrice.toString();
     _phoneNumberController.text = currentHotel!.phoneNumber.toString();
     return Scaffold(
-      body: CustomScrollView(
-        shrinkWrap: true,
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            actions: [
-              if (_authController.currentUser == currentHotel!.authorEmail)
-                !_enableEditing
-                    ? PopupMenuButton(
-                        itemBuilder: (context) => [
-                              PopupMenuItem(
-                                child: TextButton(
-                                  child: Text('Edit'),
-                                  onPressed: () {
-                                    Get.back();
-                                    setState(() {
-                                      _enableEditing = true;
-                                    });
-                                  },
-                                ),
-                              ),
-                              PopupMenuItem(
-                                child: TextButton(
-                                  child: Text('Delete'),
-                                  onPressed: () {
-                                    Get.back();
-                                    Get.dialog(
-                                      AlertDialog(
-                                        title: Text('Are you sure'),
-                                        content: Text('Delete hotel?'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () async {
-                                              Get.back();
-                                              await _hotelsController
-                                                  .deleteHotel(
-                                                currentHotel!.documentId!,
-                                              );
-                                              Get.back();
-                                            },
-                                            child: Text('Yes'),
-                                          ),
-                                          TextButton(
-                                            onPressed: Get.back,
-                                            child: Text('No'),
-                                          ),
-                                        ],
+      body: _hotelsController.isLoading.isTrue
+          ? Center(child: CircularProgressIndicator())
+          : CustomScrollView(
+              shrinkWrap: true,
+              controller: _scrollController,
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  actions: [
+                    if (_authController.currentUser ==
+                        currentHotel!.authorEmail)
+                      !_enableEditing
+                          ? PopupMenuButton(
+                              itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      child: TextButton(
+                                        child: Text('Edit'),
+                                        onPressed: () {
+                                          Get.back();
+                                          setState(() {
+                                            _enableEditing = true;
+                                          });
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ])
-                    : IconButton(
-                        icon: Icon(Icons.save),
-                        onPressed: _saveForm,
-                      ),
-            ],
-            expandedHeight: 250,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.parallax,
-              title: HotelRate(
-                rate: currentHotel!.rate,
-                currentHotel: currentHotel!,
-                enableEditing: _enableEditing,
-              ),
-              background: HotelImage(
-                imageUrl: currentHotel!.imageUrl,
-                // fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                if (_enableEditing)
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        EditingTextField(
-                          hint: 'Name',
-                          controller: _nameController,
-                          currentFocusNode: _nameFocusNode,
-                          nextFocusNode: _locationFocusNode,
-                          validator: (_) {
-                            if (_nameController.text.isEmpty) {
-                              return 'Please input name';
-                            }
-                          },
-                        ),
-                        EditingTextField(
-                          hint: 'Location',
-                          controller: _locationController,
-                          currentFocusNode: _locationFocusNode,
-                          nextFocusNode: _roomsFocusNode,
-                          validator: (_) {
-                            if (_locationController.text.isEmpty) {
-                              return 'Please input location';
-                            }
-                          },
-                        ),
-                        EditingTextField(
-                          hint: 'Rooms',
-                          controller: _roomsController,
-                          currentFocusNode: _roomsFocusNode,
-                          keyboardType: TextInputType.number,
-                          nextFocusNode: _roomPriceFocusNode,
-                          validator: (_) {
-                            if (_roomsController.text.isEmpty ||
-                                int.tryParse(_roomsController.text) == null) {
-                              return 'Please input number of rooms';
-                            }
-                          },
-                        ),
-                        EditingTextField(
-                          hint: 'Room Price',
-                          controller: _roomPriceController,
-                          currentFocusNode: _roomPriceFocusNode,
-                          keyboardType: TextInputType.number,
-                          nextFocusNode: _phoneNumberFocusNode,
-                          validator: (_) {
-                            if (_roomsController.text.isEmpty ||
-                                double.tryParse(_roomsController.text) ==
-                                    null) {
-                              return 'Please input number of rooms';
-                            }
-                          },
-                        ),
-                        EditingTextField(
-                          hint: 'Phone Number',
-                          controller: _phoneNumberController,
-                          keyboardType: TextInputType.number,
-                          currentFocusNode: _phoneNumberFocusNode,
-                          nextFocusNode: null,
-                          saveForm: _saveForm,
-                          validator: (_) {
-                            if (_phoneNumberController.text.isEmpty ||
-                                _phoneNumberController.text.runtimeType !=
-                                    int) {
-                              return 'Please input phone number';
-                            }
-                          },
-                        ),
-                      ],
+                                    ),
+                                    PopupMenuItem(
+                                      child: TextButton(
+                                        child: Text('Delete'),
+                                        onPressed: () {
+                                          Get.back();
+                                          Get.dialog(
+                                            DeleteHotelDialog(
+                                                hotelsController:
+                                                    _hotelsController,
+                                                currentHotel: currentHotel),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ])
+                          : IconButton(
+                              icon: Icon(Icons.save),
+                              onPressed: _saveForm,
+                            ),
+                  ],
+                  expandedHeight: 250,
+                  flexibleSpace: FlexibleSpaceBar(
+                    collapseMode: CollapseMode.parallax,
+                    title: HotelRate(
+                      rate: currentHotel!.rate,
+                      currentHotel: currentHotel!,
+                      enableEditing: _enableEditing,
                     ),
-                  )
-                else
-                  Column(
-                    children: <Widget>[
-                      HotelDetailsItem(
-                        leadingText: currentHotel!.name,
-                        trailing: Icon(Icons.hotel),
-                      ),
-                      HotelDetailsItem(
-                        leadingText: currentHotel!.location,
-                        trailing: Icon(Icons.location_on),
-                      ),
-                      HotelDetailsItem(
-                        leadingText: '${currentHotel!.roomsCount} Rooms',
-                        trailing: Icon(Icons.meeting_room),
-                      ),
-                      HotelDetailsItem(
-                        leadingText: '${currentHotel!.roomPrice} \$',
-                        trailing: Icon(Icons.attach_money_outlined),
-                      ),
-                      HotelDetailsItem(
-                        leadingText: '${currentHotel!.phoneNumber}',
-                        trailing: IconButton(
-                          icon: Icon(Icons.phone),
-                          onPressed: () async {
-                            if (await canLaunch(
-                                "tel://${currentHotel!.phoneNumber}")) {
-                              await launch(
-                                  "tel://${currentHotel!.phoneNumber}");
-                            } else {
-                              print('Cannot make call');
-                            }
-                          },
+                    background: HotelImage(
+                      imageUrl: currentHotel!.imageUrl,
+                      // fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      if (_enableEditing)
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              EditingTextField(
+                                hint: 'Name',
+                                controller: _nameController,
+                                currentFocusNode: _nameFocusNode,
+                                nextFocusNode: _locationFocusNode,
+                                validator: (_) {
+                                  if (_nameController.text.isEmpty) {
+                                    return 'Please input name';
+                                  }
+                                },
+                              ),
+                              EditingTextField(
+                                hint: 'Location',
+                                controller: _locationController,
+                                currentFocusNode: _locationFocusNode,
+                                nextFocusNode: _roomsFocusNode,
+                                validator: (_) {
+                                  if (_locationController.text.isEmpty) {
+                                    return 'Please input location';
+                                  }
+                                },
+                              ),
+                              EditingTextField(
+                                hint: 'Rooms',
+                                controller: _roomsController,
+                                currentFocusNode: _roomsFocusNode,
+                                keyboardType: TextInputType.number,
+                                nextFocusNode: _roomPriceFocusNode,
+                                validator: (_) {
+                                  if (_roomsController.text.isEmpty ||
+                                      int.tryParse(_roomsController.text) ==
+                                          null) {
+                                    return 'Please input number of rooms';
+                                  }
+                                },
+                              ),
+                              EditingTextField(
+                                hint: 'Room Price',
+                                controller: _roomPriceController,
+                                currentFocusNode: _roomPriceFocusNode,
+                                keyboardType: TextInputType.number,
+                                nextFocusNode: _phoneNumberFocusNode,
+                                validator: (_) {
+                                  if (_roomsController.text.isEmpty ||
+                                      double.tryParse(_roomsController.text) ==
+                                          null) {
+                                    return 'Please input number of rooms';
+                                  }
+                                },
+                              ),
+                              EditingTextField(
+                                hint: 'Phone Number',
+                                controller: _phoneNumberController,
+                                keyboardType: TextInputType.number,
+                                currentFocusNode: _phoneNumberFocusNode,
+                                nextFocusNode: null,
+                                saveForm: _saveForm,
+                                validator: (_) {
+                                  if (_phoneNumberController.text.isEmpty ||
+                                      _phoneNumberController.text.runtimeType !=
+                                          int) {
+                                    return 'Please input phone number';
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          children: <Widget>[
+                            HotelDetailsItem(
+                              leadingText: currentHotel!.name,
+                              trailing: Icon(Icons.hotel),
+                            ),
+                            HotelDetailsItem(
+                              leadingText: currentHotel!.location,
+                              trailing: Icon(Icons.location_on),
+                            ),
+                            HotelDetailsItem(
+                              leadingText: '${currentHotel!.roomsCount} Rooms',
+                              trailing: Icon(Icons.meeting_room),
+                            ),
+                            HotelDetailsItem(
+                              leadingText: '${currentHotel!.roomPrice} \$',
+                              trailing: Icon(Icons.attach_money_outlined),
+                            ),
+                            HotelDetailsItem(
+                              leadingText: '${currentHotel!.phoneNumber}',
+                              trailing: IconButton(
+                                icon: Icon(Icons.phone),
+                                onPressed: () async {
+                                  if (await canLaunch(
+                                      "tel://${currentHotel!.phoneNumber}")) {
+                                    await launch(
+                                        "tel://${currentHotel!.phoneNumber}");
+                                  } else {
+                                    print('Cannot make call');
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
                     ],
                   ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -10,9 +10,9 @@ class DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      flex: 2,
+      flex: 1,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0),
         child: ListTile(
           leading: Icon(icon),
           title: Text(title),

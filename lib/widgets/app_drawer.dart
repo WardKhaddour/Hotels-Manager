@@ -19,7 +19,7 @@ class AppDrawer extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 6,
+            flex: 5,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -31,10 +31,17 @@ class AppDrawer extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                 ),
+                Text(
+                  'TasQment',
+                  style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),
-          SizedBox(height: 50),
+          SizedBox(height: 30),
           DrawerItem(
               onTap: () {
                 Get.back();
