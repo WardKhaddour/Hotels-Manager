@@ -5,32 +5,51 @@ import '../models/hotel.dart';
 import '../services/firestore.dart';
 import 'auth_controller.dart';
 
-enum sortType {
-  Name,
-  Location,
-  RoomPrice,
-  EmptyRooms,
-}
+enum sortType { Name, Location, RoomPrice, EmptyRooms }
 // String url =
 //     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO-REY6u_fZJ0EfWq9Yqm0T8qZvHe8pfwsiw&usqp=CAU';
 
 class HotelsController extends GetxController {
   RxList<Hotel> hotels = <Hotel>[].obs;
-  RxBool isLoading = false.obs;
+  RxMap<String, List<Hotel>> hotelsByLocation = <String, List<Hotel>>{}.obs;
   final authController = Get.find<AuthController>();
+
+  void reverseHotels() {
+    print(hotels);
+    hotels = RxList.from(hotels.reversed);
+    print(hotels);
+    getHotelsByLocation();
+  }
+
+  void sortMap() {
+    var temp = <String, List<Hotel>>{}.obs;
+    var keysList = hotelsByLocation.keys.toList()
+      ..sort((a, b) => a.compareTo(b));
+    for (var key in keysList) {
+      temp[key] = hotelsByLocation[key]!;
+    }
+    hotelsByLocation = temp;
+    // return temp;
+  }
+
   void sortHotels(sortType sortBy) {
     switch (sortBy) {
       case sortType.Name:
         hotels.sort((a, b) => a.name.compareTo(b.name));
+        getHotelsByLocation();
         break;
       case sortType.Location:
-        hotels.sort((a, b) => a.location.compareTo(b.location));
+        // hotels.sort((a, b) => a.location.compareTo(b.location));
+        getHotelsByLocation();
+        sortMap();
         break;
       case sortType.RoomPrice:
         hotels.sort((a, b) => a.roomPrice.compareTo(b.roomPrice));
+        getHotelsByLocation();
         break;
       case sortType.EmptyRooms:
         hotels.sort((a, b) => a.emptyRooms.compareTo(b.emptyRooms));
+        getHotelsByLocation();
         break;
     }
     hotels.forEach(print);
@@ -43,10 +62,20 @@ class HotelsController extends GetxController {
   }
 
   Future<void>? fetchHotels() async {
+    // isLoading = true.obs;
     final fetchedHotels = await FirestoreService().fetchHotels();
     hotels.value = fetchedHotels!;
+    getHotelsByLocation();
+    // isLoading = false.obs;
 
     // hotels.sort((a, b) => a.roomPrice.compareTo(b.roomPrice));
+  }
+
+  void getHotelsByLocation() {
+    for (var location in hotelsLocations) {
+      hotelsByLocation[location] =
+          hotels.where((hotel) => hotel.location == location).toList();
+    }
   }
 
   Future<void> rateHotel(
@@ -67,10 +96,10 @@ class HotelsController extends GetxController {
 
   Future<void> addHotel(Hotel hotel) async {
     try {
-      isLoading = true.obs;
+      // isLoading = true.obs;
       await FirestoreService().addHotel(hotel);
       await fetchHotels();
-      isLoading = false.obs;
+      // isLoading = false.obs;
     } on FirebaseException catch (e) {
       Get.snackbar("An error Ocuured", e.toString());
     }
@@ -124,15 +153,6 @@ class HotelsController extends GetxController {
       temp.add(hotel.location);
     }
     print(temp);
-    return temp;
-  }
-
-  Map<String, List<Hotel>> get hotelsByLocation {
-    var temp = <String, List<Hotel>>{};
-    for (var location in hotelsLocations) {
-      temp[location] =
-          hotels.where((hotel) => hotel.location == location).toList();
-    }
     return temp;
   }
 }

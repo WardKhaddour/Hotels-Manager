@@ -22,12 +22,19 @@ class _HotelsScreenState extends State<HotelsScreen> {
   String searchText = '';
   String title = 'Sort';
   Map<String, List<Hotel>> hotelsByLocation = {};
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      isLoading = true;
+    });
     Future.delayed(Duration(seconds: 0)).then((value) async {
       await hotelsController.fetchHotels();
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
@@ -70,31 +77,31 @@ class _HotelsScreenState extends State<HotelsScreen> {
         onRefresh: () async {
           await hotelsController.fetchHotels();
         },
-        child: Obx(
-          () => hotelsController.isLoading.value
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                      if (!searchMode) SortDropdown(),
-                      Expanded(
-                          // child: StreamBuilder<QuerySnapshot>(
-                          //   stream: _hotelsStream,
-                          //   builder: (context, snapshot) {
-                          //     if (snapshot.hasError) {
-                          //       return Center(
-                          //         child: Text('Something went wrong'),
-                          //       );
-                          //     }
-                          //     if (snapshot.connectionState ==
-                          //         ConnectionState.waiting) {
-                          //       return Center(
-                          //         child: CircularProgressIndicator(),
-                          //       );
-                          //     }
-                          child: !searchMode
-                              ? ListView(
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                    if (!searchMode) SortDropdown(),
+                    Expanded(
+                        // child: StreamBuilder<QuerySnapshot>(
+                        //   stream: _hotelsStream,
+                        //   builder: (context, snapshot) {
+                        //     if (snapshot.hasError) {
+                        //       return Center(
+                        //         child: Text('Something went wrong'),
+                        //       );
+                        //     }
+                        //     if (snapshot.connectionState ==
+                        //         ConnectionState.waiting) {
+                        //       return Center(
+                        //         child: CircularProgressIndicator(),
+                        //       );
+                        //     }
+                        child: !searchMode
+                            ? Obx(
+                                () => ListView(
                                   //   children: snapshot.data!.docs.map(
                                   //     (document) {
                                   //       var data = document.data()
@@ -112,11 +119,18 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              key,
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.location_on),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  key,
+                                                  style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           Column(
@@ -127,16 +141,17 @@ class _HotelsScreenState extends State<HotelsScreen> {
                                         ],
                                       ),
                                   ],
-                                )
-                              : ListView.builder(
-                                  itemBuilder: (context, index) =>
-                                      HotelCard(searchHotels![index]),
-                                  itemCount: searchHotels!.length,
-                                ))
-                    ]),
-        ),
-        // ],
+                                ),
+                              )
+                            : ListView.builder(
+                                itemBuilder: (context, index) =>
+                                    HotelCard(searchHotels![index]),
+                                itemCount: searchHotels!.length,
+                              ))
+                  ]),
       ),
+      // ],
+
       // ),
       // ),
     );

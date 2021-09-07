@@ -39,14 +39,14 @@ class HotelRate extends StatelessWidget {
                 for (int i = 0; i < rate.toInt(); ++i)
                   Icon(
                     Icons.star,
-                    color: Colors.yellowAccent,
+                    color: Color(0xFFBCB82E),
                   ),
                 if (rate.toInt() != rate)
                   GradientIcon(
                       child: Icon(
                         Icons.star,
                       ),
-                      colors: [Colors.yellowAccent, Colors.white]),
+                      colors: [Color(0xFFBCB82E), Colors.white]),
               ]),
               enableEditing
                   ? SizedBox()

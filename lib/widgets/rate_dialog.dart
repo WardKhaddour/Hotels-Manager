@@ -41,7 +41,7 @@ class _RateDialogState extends State<RateDialog> {
             IconButton(
               icon: Icon(
                 Icons.star,
-                color: i <= rate ? Colors.yellowAccent : Colors.white,
+                color: i <= rate ? Color(0xFFBCB82E) : Colors.white,
               ),
               onPressed: () {
                 setState(() {

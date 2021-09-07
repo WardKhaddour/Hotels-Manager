@@ -50,7 +50,6 @@ class HotelCard extends StatelessWidget {
                   ? TextButton(
                       style: ButtonStyle(alignment: Alignment.centerLeft),
                       onPressed: () {
-                        //TODO take room
                         _hotelsController.takeRoom(hotel);
                       },
                       child: Text(
