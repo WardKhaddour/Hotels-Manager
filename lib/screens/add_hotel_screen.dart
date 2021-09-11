@@ -48,9 +48,21 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
 
   bool isLoading = false;
 
+  bool isUploadingImage = false;
+
   File? image;
 
   String? imageUrl;
+
+  void refresh() {
+    _nameController.clear();
+    _locationController.clear();
+    _roomsController.clear();
+    _roomPriceController.clear();
+    _phoneNumberController.clear();
+    imageUrl = null;
+    image = null;
+  }
 
   Future<void> addHotel() async {
     try {
@@ -67,7 +79,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
           location: _locationController.text,
           roomsCount: int.parse(_roomsController.text),
           id: DateTime.now().toIso8601String(),
-          imageUrl: result!.imageUrl,
+          imageUrl: result != null ? result.imageUrl : '',
           rates: {},
           roomPrice: double.parse(_roomPriceController.text),
           phoneNumber: int.parse(_phoneNumberController.text),
@@ -93,6 +105,10 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
         title: Text('Add Hotel'),
         actions: [
           IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: refresh,
+          ),
+          IconButton(
             icon: Icon(Icons.check),
             onPressed: addHotel,
           ),
@@ -112,11 +128,13 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                       height: 300,
                       width: 300,
                       child: image != null
-                          ? FadeInImage(
-                              placeholder:
-                                  AssetImage('assets/images/hotel.png'),
-                              image: FileImage(image!),
-                            )
+                          ? isUploadingImage
+                              ? CircularProgressIndicator()
+                              : FadeInImage(
+                                  placeholder:
+                                      AssetImage('assets/images/hotel.png'),
+                                  image: FileImage(image!),
+                                )
                           : Image(
                               image: AssetImage('assets/images/hotel.png'),
                             ),
@@ -131,9 +149,13 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                           leading: Text('Take Photo'),
                           trailing: Icon(Icons.camera),
                           onTap: () async {
+                            setState(() {
+                              isUploadingImage = true;
+                            });
                             await ImageSelector.selectImageFromCamera()
                                 .then((value) => setState(() {
                                       image = value;
+                                      isUploadingImage = false;
                                     }));
                             // final result =
                             //     await FirebaseStorageServise.uploadImage(
@@ -171,6 +193,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                   children: <Widget>[
                     EditingTextField(
                       hint: 'Name',
+                      icon: Icons.title,
                       controller: _nameController,
                       currentFocusNode: _nameFocusNode,
                       nextFocusNode: _locationFocusNode,
@@ -182,6 +205,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     ),
                     EditingTextField(
                       hint: 'Location',
+                      icon: Icons.location_on,
                       controller: _locationController,
                       currentFocusNode: _locationFocusNode,
                       nextFocusNode: _roomsFocusNode,
@@ -193,6 +217,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     ),
                     EditingTextField(
                       hint: 'Rooms',
+                      icon: Icons.meeting_room,
                       controller: _roomsController,
                       currentFocusNode: _roomsFocusNode,
                       keyboardType: TextInputType.number,
@@ -206,6 +231,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     ),
                     EditingTextField(
                       hint: 'Room Price',
+                      icon: Icons.attach_money,
                       controller: _roomPriceController,
                       currentFocusNode: _roomPriceFocusNode,
                       keyboardType: TextInputType.number,
@@ -219,6 +245,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     ),
                     EditingTextField(
                       hint: 'Phone Number',
+                      icon: Icons.phone,
                       controller: _phoneNumberController,
                       keyboardType: TextInputType.number,
                       currentFocusNode: _phoneNumberFocusNode,

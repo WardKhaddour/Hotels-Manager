@@ -26,8 +26,16 @@ class HotelRate extends StatelessWidget {
               enableEditing
                   ? SizedBox()
                   : TextButton(
-                      child:
-                          Text('Rate', style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        'Rate Now',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          shadows: <Shadow>[
+                            Shadow(color: Colors.black),
+                          ],
+                        ),
+                      ),
                       onPressed: () {
                         Get.dialog(
                           RateDialog(currentHotel: currentHotel),

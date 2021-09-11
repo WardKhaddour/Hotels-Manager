@@ -35,7 +35,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   final _hotelsController = Get.find<HotelsController>();
   final _authController = Get.find<AuthController>();
 
-  final Hotel? currentHotel =
+  Hotel? currentHotel =
       Get.arguments != null ? Get.arguments['hotel'] as Hotel : null;
   bool _enableEditing = false;
   bool _isLoading = false;
@@ -65,6 +65,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     });
     await _hotelsController.editHotel(editiedHotel, currentHotel!.documentId!);
     setState(() {
+      currentHotel = editiedHotel;
       _isLoading = false;
     });
   }
@@ -73,6 +74,11 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   void initState() {
     super.initState();
     if (currentHotel == null) Get.back();
+    _nameController.text = currentHotel!.name;
+    _locationController.text = currentHotel!.location;
+    _roomsController.text = currentHotel!.roomsCount.toString();
+    _roomPriceController.text = currentHotel!.roomPrice.toString();
+    _phoneNumberController.text = currentHotel!.phoneNumber.toString();
   }
 
   @override
@@ -80,7 +86,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
     _scrollController.dispose();
     _nameController.dispose();
     _roomsController.dispose();
-    _hotelsController.dispose();
+    // _hotelsController.dispose();
     _locationController.dispose();
     _phoneNumberController.dispose();
     _nameFocusNode.dispose();
@@ -93,11 +99,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     // final currentHotel = _hotelsController.findById(_hotelId);
-    _nameController.text = currentHotel!.name;
-    _locationController.text = currentHotel!.location;
-    _roomsController.text = currentHotel!.roomsCount.toString();
-    _roomPriceController.text = currentHotel!.roomPrice.toString();
-    _phoneNumberController.text = currentHotel!.phoneNumber.toString();
+
     return Scaffold(
       body: ModalProgressHUD(
         inAsyncCall: _isLoading,
@@ -168,6 +170,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                         children: <Widget>[
                           EditingTextField(
                             hint: 'Name',
+                            icon: Icons.title,
                             controller: _nameController,
                             currentFocusNode: _nameFocusNode,
                             nextFocusNode: _locationFocusNode,
@@ -179,6 +182,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Location',
+                            icon: Icons.location_on,
                             controller: _locationController,
                             currentFocusNode: _locationFocusNode,
                             nextFocusNode: _roomsFocusNode,
@@ -190,6 +194,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Rooms',
+                            icon: Icons.meeting_room,
                             controller: _roomsController,
                             currentFocusNode: _roomsFocusNode,
                             keyboardType: TextInputType.number,
@@ -203,6 +208,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Room Price',
+                            icon: Icons.attach_money,
                             controller: _roomPriceController,
                             currentFocusNode: _roomPriceFocusNode,
                             keyboardType: TextInputType.number,
@@ -217,6 +223,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Phone Number',
+                            icon: Icons.phone,
                             controller: _phoneNumberController,
                             keyboardType: TextInputType.number,
                             currentFocusNode: _phoneNumberFocusNode,

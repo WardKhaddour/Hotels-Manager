@@ -10,25 +10,26 @@ enum sortType { Name, Location, RoomPrice, EmptyRooms }
 //     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO-REY6u_fZJ0EfWq9Yqm0T8qZvHe8pfwsiw&usqp=CAU';
 
 class HotelsController extends GetxController {
-  RxList<Hotel> hotels = <Hotel>[].obs;
-  RxMap<String, List<Hotel>> hotelsByLocation = <String, List<Hotel>>{}.obs;
+  final hotels = <Hotel>[].obs;
+  final filteredHotels = <Hotel>[].obs;
+  final hotelsByLocation = <String, List<Hotel>>{}.obs;
   final authController = Get.find<AuthController>();
 
   void reverseHotels() {
     print(hotels);
-    hotels = RxList.from(hotels.reversed);
+    hotels.value = List.from(hotels.reversed);
     print(hotels);
     getHotelsByLocation();
   }
 
   void sortMap() {
-    var temp = <String, List<Hotel>>{}.obs;
+    var temp = <String, List<Hotel>>{};
     var keysList = hotelsByLocation.keys.toList()
       ..sort((a, b) => a.compareTo(b));
     for (var key in keysList) {
       temp[key] = hotelsByLocation[key]!;
     }
-    hotelsByLocation = temp;
+    hotelsByLocation.value = temp;
     // return temp;
   }
 
@@ -53,6 +54,19 @@ class HotelsController extends GetxController {
         break;
     }
     hotels.forEach(print);
+  }
+
+  void clearFilters() {
+    filteredHotels.clear();
+  }
+
+  // List<Hotel>? filterHotelsByLocation(List<String> locations) {
+  //   if (locations == []) return [];
+  //   return hotels.where((hotel) => locations.contains(hotel.location)).toList();
+  // }
+  void filterHotelsByLocation(String location) {
+    filteredHotels
+        .addAll(hotels.where((element) => element.location == location));
   }
 
   List<Hotel> get myHotels {
@@ -114,8 +128,15 @@ class HotelsController extends GetxController {
   }
 
   Future<void> editHotel(Hotel hotel, String documentId) async {
+    final firestoreService = FirestoreService();
     try {
-      await FirestoreService().updateHotel(hotel, documentId);
+      await firestoreService.updateHotel(hotel, documentId);
+      // await fetchHotels();
+      final index =
+          hotels.indexWhere((element) => element.documentId == documentId);
+
+      final updatedHotel = await firestoreService.fetchHotel(documentId);
+      hotels[index] = updatedHotel!;
       await fetchHotels();
     } on Exception catch (e) {
       Get.snackbar("An error Ocuured", e.toString());

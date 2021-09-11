@@ -21,7 +21,6 @@ class FirebaseStorageServise {
       );
     }
     print('failddddd');
-    return null; // var file = File(filePath);
-    // var appDocDir = await getApplicationDocumentsDirectory();
+    return null;
   }
 }

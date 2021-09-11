@@ -20,6 +20,15 @@ class FirestoreService {
     }
   }
 
+  Future<Hotel?> fetchHotel(String documentId) async {
+    final updatedHotelDocs =
+        await fireStore.collection('hotels').doc(documentId).get();
+    final updatedHotel =
+        Hotel.fromDocuments(updatedHotelDocs.data()!, documentId);
+    print('updated Hotel $updatedHotel');
+    return updatedHotel;
+  }
+
   Future<void> addHotel(Hotel newHotel) async {
     final collection = fireStore.collection('hotels');
     await collection.add({

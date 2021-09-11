@@ -26,6 +26,7 @@ class Hotel {
       emptyRooms: data['emptyRooms'] as int,
     );
   }
+
   double get rate {
     var sum = 0;
     if (rates.length <= 0) {

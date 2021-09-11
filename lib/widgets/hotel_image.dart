@@ -23,12 +23,16 @@ class HotelImage extends StatelessWidget {
           ),
         ));
       },
-      child: FadeInImage(
-        fit: BoxFit.fill,
-        placeholder: AssetImage(
-          'assets/images/hotel.png',
+      child: Container(
+        width: 50,
+        height: 50,
+        child: FadeInImage(
+          fit: BoxFit.fill,
+          placeholder: AssetImage(
+            'assets/images/hotel.png',
+          ),
+          image: NetworkImage(imageUrl),
         ),
-        image: NetworkImage(imageUrl),
       ),
     );
   }
