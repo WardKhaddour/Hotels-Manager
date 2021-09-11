@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hotels_manager/widgets/filters_dialog.dart';
-import 'package:hotels_manager/widgets/filters_item.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/hotels_controller.dart';
 import '../models/hotel.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/filters_dialog.dart';
 import '../widgets/hotel_card.dart';
 import '../widgets/sort_dropdown.dart';
 
@@ -76,9 +75,9 @@ class _HotelsScreenState extends State<HotelsScreen> {
             icon: Icon(enableFiltering ? Icons.close : Icons.filter_list),
             onPressed: () {
               hotelsController.clearFilters();
-              // setState(() {
-              enableFiltering = !enableFiltering;
-              // });
+              setState(() {
+                enableFiltering = !enableFiltering;
+              });
               !enableFiltering
                   ? null
                   : Get.dialog(FiltersDialog()).then((value) {
