@@ -147,6 +147,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
               ],
               expandedHeight: 250,
               flexibleSpace: FlexibleSpaceBar(
+                // centerTitle: false,
                 collapseMode: CollapseMode.parallax,
                 title: HotelRate(
                   rate: currentHotel!.rate,
@@ -170,7 +171,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                         children: <Widget>[
                           EditingTextField(
                             hint: 'Name',
-                            icon: Icons.title,
+                            icon: Icon(Icons.title),
                             controller: _nameController,
                             currentFocusNode: _nameFocusNode,
                             nextFocusNode: _locationFocusNode,
@@ -182,7 +183,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Location',
-                            icon: Icons.location_on,
+                            icon: Icon(Icons.location_on),
                             controller: _locationController,
                             currentFocusNode: _locationFocusNode,
                             nextFocusNode: _roomsFocusNode,
@@ -194,7 +195,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Rooms',
-                            icon: Icons.meeting_room,
+                            icon: Icon(Icons.meeting_room),
                             controller: _roomsController,
                             currentFocusNode: _roomsFocusNode,
                             keyboardType: TextInputType.number,
@@ -208,7 +209,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Room Price',
-                            icon: Icons.attach_money,
+                            icon: Icon(Icons.attach_money),
                             controller: _roomPriceController,
                             currentFocusNode: _roomPriceFocusNode,
                             keyboardType: TextInputType.number,
@@ -223,7 +224,7 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                           ),
                           EditingTextField(
                             hint: 'Phone Number',
-                            icon: Icons.phone,
+                            icon: Icon(Icons.phone),
                             controller: _phoneNumberController,
                             keyboardType: TextInputType.number,
                             currentFocusNode: _phoneNumberFocusNode,
@@ -243,10 +244,19 @@ class _HotelDetailsScreenState extends State<HotelDetailsScreen> {
                   else
                     Column(
                       children: <Widget>[
-                        HotelDetailsItem(
-                          leadingText: currentHotel!.name,
-                          trailing: Icon(Icons.hotel),
+                        Text(
+                          '${currentHotel!.name}',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Uchen',
+                            // color: Theme.of(context).primaryColor,
+                          ),
                         ),
+                        // HotelDetailsItem(
+                        //   leadingText: currentHotel!.name,
+                        //   trailing: Icon(Icons.hotel),
+                        // ),
                         HotelDetailsItem(
                           leadingText: currentHotel!.location,
                           trailing: Icon(Icons.location_on),

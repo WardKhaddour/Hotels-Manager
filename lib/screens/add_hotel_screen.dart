@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -11,9 +13,11 @@ import '../models/hotel.dart';
 import '../services/firebase_storage_service.dart';
 import '../services/image_selector.dart';
 import '../widgets/editing_text_field.dart';
+import '../widgets/location_text_field.dart';
+import '../widgets/phone_number_text_field.dart';
 
 class AddHotelScreen extends StatefulWidget {
-  static const routeName = '\add-hotel';
+  static const routeName = '/add-hotel';
 
   @override
   _AddHotelScreenState createState() => _AddHotelScreenState();
@@ -46,13 +50,17 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool isLoading = false;
+  bool _isLoading = false;
 
-  bool isUploadingImage = false;
+  bool _isUploadingImage = false;
 
-  File? image;
+  File? _image;
 
-  String? imageUrl;
+  String? _imageUrl;
+
+  double _phoneNumber = 0.0;
+
+  final hotelsController = Get.find<HotelsController>();
 
   void refresh() {
     _nameController.clear();
@@ -60,17 +68,17 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
     _roomsController.clear();
     _roomPriceController.clear();
     _phoneNumberController.clear();
-    imageUrl = null;
-    image = null;
+    _imageUrl = null;
+    _image = null;
   }
 
   Future<void> addHotel() async {
     try {
       setState(() {
-        isLoading = true;
+        _isLoading = true;
       });
       final result = await FirebaseStorageServise.uploadImage(
-          _nameController.text, image!);
+          _nameController.text, _image!);
       await _hotelsController.addHotel(
         Hotel(
           emptyRooms: int.parse(_roomsController.text),
@@ -82,17 +90,18 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
           imageUrl: result != null ? result.imageUrl : '',
           rates: {},
           roomPrice: double.parse(_roomPriceController.text),
-          phoneNumber: int.parse(_phoneNumberController.text),
+          // phoneNumber: int.parse(_phoneNumberController.text),
+          phoneNumber: _phoneNumber.toInt(),
         ),
       );
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
       Get.back();
       Get.snackbar('Done!', 'Hotel Added Succesfully');
     } on FirebaseException catch (e) {
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
       print(e.toString());
     }
@@ -115,7 +124,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
         ],
       ),
       body: ModalProgressHUD(
-        inAsyncCall: isLoading,
+        inAsyncCall: _isLoading,
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -127,13 +136,13 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     child: Container(
                       height: 300,
                       width: 300,
-                      child: image != null
-                          ? isUploadingImage
+                      child: _image != null
+                          ? _isUploadingImage
                               ? CircularProgressIndicator()
                               : FadeInImage(
                                   placeholder:
                                       AssetImage('assets/images/hotel.png'),
-                                  image: FileImage(image!),
+                                  image: FileImage(_image!),
                                 )
                           : Image(
                               image: AssetImage('assets/images/hotel.png'),
@@ -150,12 +159,12 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                           trailing: Icon(Icons.camera),
                           onTap: () async {
                             setState(() {
-                              isUploadingImage = true;
+                              _isUploadingImage = true;
                             });
                             await ImageSelector.selectImageFromCamera()
                                 .then((value) => setState(() {
-                                      image = value;
-                                      isUploadingImage = false;
+                                      _image = value;
+                                      _isUploadingImage = false;
                                     }));
                             // final result =
                             //     await FirebaseStorageServise.uploadImage(
@@ -171,7 +180,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                           onTap: () async {
                             await ImageSelector.selectImageFromGallery()
                                 .then((value) => setState(() {
-                                      image = value;
+                                      _image = value;
                                     }));
                             // final result =
                             //     await FirebaseStorageServise.uploadImage(
@@ -193,7 +202,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                   children: <Widget>[
                     EditingTextField(
                       hint: 'Name',
-                      icon: Icons.title,
+                      icon: Icon(Icons.title),
                       controller: _nameController,
                       currentFocusNode: _nameFocusNode,
                       nextFocusNode: _locationFocusNode,
@@ -203,21 +212,43 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                         }
                       },
                     ),
-                    EditingTextField(
-                      hint: 'Location',
-                      icon: Icons.location_on,
-                      controller: _locationController,
-                      currentFocusNode: _locationFocusNode,
+                    LocationTextField(
+                      focusNode: _locationFocusNode,
                       nextFocusNode: _roomsFocusNode,
                       validator: (_) {
                         if (_locationController.text.isEmpty) {
                           return 'Please input location';
                         }
                       },
+                      onSuggestionSelected: (value) {
+                        _locationController.text = value.data!;
+                        setState(() {});
+                      },
+                      controller: _locationController,
+                      itemBuilder: (context, suggestion) => Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: suggestion,
+                      ),
+                      suggestionsCallback: (value) => hotelsController
+                          .hotelsLocations
+                          .map((e) => Text(e))
+                          .toList(),
                     ),
+                    // EditingTextField(
+                    //   hint: 'Location',
+                    //   icon: Icons.location_on,
+                    //   controller: _locationController,
+                    //   currentFocusNode: _locationFocusNode,
+                    //   nextFocusNode: _roomsFocusNode,
+                    //   validator: (_) {
+                    //     if (_locationController.text.isEmpty) {
+                    //       return 'Please input location';
+                    //     }
+                    //   },
+                    // ),
                     EditingTextField(
                       hint: 'Rooms',
-                      icon: Icons.meeting_room,
+                      icon: Icon(Icons.meeting_room),
                       controller: _roomsController,
                       currentFocusNode: _roomsFocusNode,
                       keyboardType: TextInputType.number,
@@ -231,7 +262,7 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                     ),
                     EditingTextField(
                       hint: 'Room Price',
-                      icon: Icons.attach_money,
+                      icon: Icon(Icons.attach_money),
                       controller: _roomPriceController,
                       currentFocusNode: _roomPriceFocusNode,
                       keyboardType: TextInputType.number,
@@ -243,14 +274,10 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                         }
                       },
                     ),
-                    EditingTextField(
-                      hint: 'Phone Number',
-                      icon: Icons.phone,
+                    PhoneNumberTextField(
                       controller: _phoneNumberController,
-                      keyboardType: TextInputType.number,
-                      currentFocusNode: _phoneNumberFocusNode,
+                      focusNode: _phoneNumberFocusNode,
                       nextFocusNode: null,
-                      // saveForm: _saveForm,
                       validator: (_) {
                         if (_phoneNumberController.text.isEmpty ||
                             _phoneNumberController.text.runtimeType != int) {
@@ -258,6 +285,15 @@ class _AddHotelScreenState extends State<AddHotelScreen> {
                         }
                       },
                     ),
+                    // Slider(
+                    //     min: 0,
+                    //     max: 10000000000000000000000,
+                    //     value: phoneNumber,
+                    //     onChanged: (value) {
+                    //       phoneNumber = value;
+
+                    //       setState(() {});
+                    //     }),
                   ],
                 ),
               ),

@@ -147,7 +147,9 @@ class HotelsController extends GetxController {
     // isLoading = true.obs;
     try {
       await FirestoreService().deleteHotel(documentId);
-      await fetchHotels();
+      // await fetchHotels();
+      hotels.remove(
+          hotels.firstWhere((element) => element.documentId == documentId));
     } on Exception catch (e) {
       Get.snackbar("An error Ocuured", e.toString());
     }

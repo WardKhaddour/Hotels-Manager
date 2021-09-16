@@ -20,6 +20,7 @@ class _FiltersDialogState extends State<FiltersDialog> {
     return AlertDialog(
       title: Text('Select Your Filters'),
       content: Column(
+        mainAxisSize: MainAxisSize.min,
         children: hotelsController.hotelsLocations
             .map(
               (e) => FiltersItem(title: e),

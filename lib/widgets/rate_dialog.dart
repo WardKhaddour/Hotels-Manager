@@ -58,7 +58,7 @@ class _RateDialogState extends State<RateDialog> {
         ),
         TextButton(
           onPressed: () {
-            Get.back();
+            Get.back(result: rate.toDouble());
             addRate();
           },
           child: Text('Rate'),

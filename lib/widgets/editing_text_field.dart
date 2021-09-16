@@ -20,7 +20,7 @@ class EditingTextField extends StatelessWidget {
   final VoidCallback? saveForm;
   final String hint;
   final String? Function(String?)? validator;
-  final IconData icon;
+  final Widget icon;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -32,7 +32,7 @@ class EditingTextField extends StatelessWidget {
         focusNode: currentFocusNode,
         decoration: kTextFieldDecoration.copyWith(
           hintText: hint,
-          icon: Icon(icon),
+          icon: icon,
         ),
         validator: validator,
         textInputAction: hint == 'Phone Number'
